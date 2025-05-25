@@ -193,7 +193,7 @@
 	.device-list.cyd {
 		display: none;
 	}
-	.device-list.marauder {
+	.device-list.custom {
 		display: none;
 	}
 	.device-list.esp32 {
@@ -281,7 +281,7 @@
 		<button class="device-button" id="m5stack" onclick="toggleDeviceCategory('m5stack')">M5Stack</button>
 		<button class="device-button" id="lilygo" onclick="toggleDeviceCategory('lilygo')">Lilygo</button>
 		<button class="device-button" id="cyd" onclick="toggleDeviceCategory('cyd')"> CYD </button>
-		<button class="device-button" id="marauder" onclick="toggleDeviceCategory('marauder')"> Marauder </button>
+		<button class="device-button" id="custom" onclick="toggleDeviceCategory('custom')">Custom Boards</button>
 		<button class="device-button" id="esp32" onclick="toggleDeviceCategory('esp32')">ESP32</button>
 		<button class="device-button" id="wip" onclick="toggleDeviceCategory('wip')" style="display: none">WIP</button>
 	  </div>
