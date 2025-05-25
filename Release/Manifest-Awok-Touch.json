@@ -1,0 +1,1 @@
+{"name":"Awok Dual Touch v2","new_install_prompt_erase": true,"builds":[{"chipFamily":"ESP32","improv":false,"parts":[{"path":"bins/Launcher-Awok-Touch.bin","offset":0}]}]}

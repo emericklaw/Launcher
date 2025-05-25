@@ -193,7 +193,7 @@
 	.device-list.cyd {
 		display: none;
 	}
-	.device-list.marauder {
+	.device-list.custom {
 		display: none;
 	}
 	.device-list.esp32 {
@@ -281,7 +281,7 @@
 		<button class="device-button" id="m5stack" onclick="toggleDeviceCategory('m5stack')">M5Stack</button>
 		<button class="device-button" id="lilygo" onclick="toggleDeviceCategory('lilygo')">Lilygo</button>
 		<button class="device-button" id="cyd" onclick="toggleDeviceCategory('cyd')"> CYD </button>
-		<button class="device-button" id="marauder" onclick="toggleDeviceCategory('marauder')"> Marauder </button>
+		<button class="device-button" id="custom" onclick="toggleDeviceCategory('custom')">Custom Boards</button>
 		<button class="device-button" id="esp32" onclick="toggleDeviceCategory('esp32')">ESP32</button>
 		<button class="device-button" id="wip" onclick="toggleDeviceCategory('wip')" style="display: none">WIP</button>
 	  </div>
@@ -298,6 +298,7 @@
 <input type='radio' name='type' value='m5stack-cplus1_1' id='m5stack-cplus1_1' /><label for='m5stack-cplus1_1'>StickCPlus <a href='https://shop.m5stack.com/products/m5stickc-plus-esp32-pico-mini-iot-development-kit?ref=Pirata' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
 <input type='radio' name='type' value='m5stack-cplus2' id='m5stack-cplus2' /><label for='m5stack-cplus2'>StickCPlus2 <a href='https://shop.m5stack.com/products/m5stickc-plus2-esp32-mini-iot-development-kit?ref=Pirata' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
 </ul><ul class='device-list lilygo'>
+<input type='radio' name='type' value='lilygo-t-deck-pro' id='lilygo-t-deck-pro' /><label for='lilygo-t-deck-pro'>T-Deck Pro <a href='https://lilygo.cc/products/t-deck-pro' target='_blank' rel='noopener noreferrer'>(link)</a> e-Paper display</label>
 <input type='radio' name='type' value='lilygo-t-deck' id='lilygo-t-deck' /><label for='lilygo-t-deck'>T-Deck <a href='https://lilygo.cc/products/t-deck' target='_blank' rel='noopener noreferrer'>(link)</a> (Normal and Plus)</label>
 <input type='radio' name='type' value='lilygo-t-display-S3-touch' id='lilygo-t-display-S3-touch' /><label for='lilygo-t-display-S3-touch'>T-Display-S3 <a href='https://lilygo.cc/products/t-display-s3?_pos=1&_sid=d7b2ebc22&_ss=r&variant=42589373268149' target='_blank' rel='noopener noreferrer'>(link)</a> Touch and no touch (single press and longpress logic on both buttons )</label>
 <input type='radio' name='type' value='lilygo-t-display-S3-pro' id='lilygo-t-display-S3-pro' /><label for='lilygo-t-display-S3-pro'>T-Display_S3_PRO <a href='https://lilygo.cc/products/t-display-s3?_pos=1&_sid=d7b2ebc22&_ss=r&variant=42589373268149' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
@@ -320,25 +321,27 @@
 <input type='radio' name='type' value='CYD-3248W535C' id='CYD-3248W535C' /><label for='CYD-3248W535C'>CYD-3248W535C (ESP32S3, 3.5in, 320x480, Capacitive)</label>
 <input type='radio' name='type' value='CYD-8048S043C' id='CYD-8048S043C' /><label for='CYD-8048S043C'>CYD-8048S043C (ESP32S3, 4.3in, 800x480, Capacitive)</label>
 <input type='radio' name='type' value='CYD-8048W550C' id='CYD-8048W550C' /><label for='CYD-8048W550C'>CYD-8048W550C (ESP32S3, 5.5in, 800x480, Capacitive)</label>
-</ul><ul class='device-list marauder'>
-<input type='radio' name='type' value='Marauder-Mini' id='Marauder-Mini' /><label for='Marauder-Mini'>Mini </label>
-<input type='radio' name='type' value='Marauder-v4-OG' id='Marauder-v4-OG' /><label for='Marauder-v4-OG'>V4-OG and V6 </label>
-<input type='radio' name='type' value='Marauder-v61' id='Marauder-v61' /><label for='Marauder-v61'>V6.x </label>
-<input type='radio' name='type' value='Marauder-v7' id='Marauder-v7' /><label for='Marauder-v7'>V7 </label>
+</ul><ul class='device-list custom'>
+<input type='radio' name='type' value='Awok-Mini' id='Awok-Mini' /><label for='Awok-Mini'>Awok Dual Mini v2 https://awokdynamics.com/products/dual-mini-v2</label>
+<input type='radio' name='type' value='Awok-Touch' id='Awok-Touch' /><label for='Awok-Touch'>Awok Dual Touch v2 <a href='https://awokdynamics.com/products/dual-touch-v2' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
+<input type='radio' name='type' value='Marauder-Mini' id='Marauder-Mini' /><label for='Marauder-Mini'>Marauder Mini <a href='https://justcallmekokollc.com/products/marauder-mini' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
+<input type='radio' name='type' value='Marauder-v4-OG' id='Marauder-v4-OG' /><label for='Marauder-v4-OG'>Marauder V4-OG and V6 <a href='https://github.com/justcallmekoko/ESP32Marauder/wiki/esp32-marauder-kit' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
+<input type='radio' name='type' value='Marauder-v61' id='Marauder-v61' /><label for='Marauder-v61'>Marauder V6.x <a href='https://justcallmekokollc.com/products/esp32-marauder-v6' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
+<input type='radio' name='type' value='Marauder-v7' id='Marauder-v7' /><label for='Marauder-v7'>Marauder V7 <a href='https://justcallmekokollc.com/products/esp32-marauder-v7-pre-order' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
+<input type='radio' name='type' value='Phantom_S024R' id='Phantom_S024R' /><label for='Phantom_S024R'>RabbitLabs The Phantom <a href='https://rabbit-labs.com/product/the-phantom-by-rabbit-labs/?v=dc634e207282' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
+<input type='radio' name='type' value='smoochiee-board' id='smoochiee-board' /><label for='smoochiee-board'>Smoochie Board </label>
 </ul><ul class='device-list esp32'>
 <input type='radio' name='type' value='headless-esp32-4mb' id='headless-esp32-4mb' /><label for='headless-esp32-4mb'>ESP32-4mb </label>
 <input type='radio' name='type' value='headless-esp32-8mb' id='headless-esp32-8mb' /><label for='headless-esp32-8mb'>ESP32-8mb </label>
 <input type='radio' name='type' value='headless-esp32s3-16mb' id='headless-esp32s3-16mb' /><label for='headless-esp32s3-16mb'>ESP32-S3-16mb </label>
 <input type='radio' name='type' value='headless-esp32s3-4mb' id='headless-esp32s3-4mb' /><label for='headless-esp32s3-4mb'>ESP32-S3-4mb </label>
 <input type='radio' name='type' value='headless-esp32s3-8mb' id='headless-esp32s3-8mb' /><label for='headless-esp32s3-8mb'>ESP32-S3-8mb </label>
-<input type='radio' name='type' value='smoochiee-board' id='smoochiee-board' /><label for='smoochiee-board'>Smoochie Board </label>
 </ul><ul class='device-list elecrow'>
 </ul><ul class='device-list wip'>
 <input type='radio' name='type' value='elecrow-24B' id='elecrow-24B' /><label for='elecrow-24B'>Elecrow ESP32 2.4in <a href='https://www.elecrow.com/wiki/esp32-display-242727-intelligent-touch-screen-wi-fi26ble-240320-hmi-display.html' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
 <input type='radio' name='type' value='elecrow-28B' id='elecrow-28B' /><label for='elecrow-28B'>Elecrow ESP32 2.8in <a href='https://www.elecrow.com/wiki/esp32-display-282727-intelligent-touch-screen-wi-fi26ble-240320-hmi-display.html' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
 <input type='radio' name='type' value='elecrow-35Bv2_2' id='elecrow-35Bv2_2' /><label for='elecrow-35Bv2_2'>Elecrow ESP32 3.5in v2.2 <a href='https://www.elecrow.com/wiki/esp32-display-352727-intelligent-touch-screen-wi-fi26ble-320480-hmi-display.html' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
 <input type='radio' name='type' value='elecrow-35B' id='elecrow-35B' /><label for='elecrow-35B'>Elecrow ESP32 3.5in <a href='https://www.elecrow.com/wiki/esp32-display-352727-intelligent-touch-screen-wi-fi26ble-320480-hmi-display.html' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
-<input type='radio' name='type' value='lilygo-t-deck-pro' id='lilygo-t-deck-pro' /><label for='lilygo-t-deck-pro'>T-Deck Pro <a href='https://lilygo.cc/products/t-deck-pro' target='_blank' rel='noopener noreferrer'>(link)</a> e-Paper display</label>
 <input type='radio' name='type' value='lilygo-t-display-S3-amoled' id='lilygo-t-display-S3-amoled' /><label for='lilygo-t-display-S3-amoled'>T-Display-S3 AMOLED Plus <a href='https://lilygo.cc/products/t-display-s3-amoled' target='_blank' rel='noopener noreferrer'>(link)</a> </label>
 </ul>
 
