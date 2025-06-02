@@ -1,0 +1,1 @@
+{"name":"Core4mb","new_install_prompt_erase": true,"builds":[{"chipFamily":"ESP32","improv":false,"parts":[{"path":"https://github.com/bmorcelli/Launcher/releases/download/2.4.9/Launcher-m5stack-core-4Mb.bin","offset":0}]}]}

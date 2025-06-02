@@ -1,0 +1,1 @@
+{"name":"T-Display-S3 AMOLED Plus","new_install_prompt_erase": true,"builds":[{"chipFamily":"ESP32-S3","improv":false,"parts":[{"path":"https://github.com/bmorcelli/Launcher/releases/download/2.4.9/Launcher-lilygo-t-display-S3-amoled.bin","offset":0}]}]}

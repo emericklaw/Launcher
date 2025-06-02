@@ -1,0 +1,1 @@
+{"name":"T-Deck Pro","new_install_prompt_erase": true,"builds":[{"chipFamily":"ESP32-S3","improv":false,"parts":[{"path":"https://github.com/bmorcelli/Launcher/releases/download/2.4.9/Launcher-lilygo-t-deck-pro.bin","offset":0}]}]}
