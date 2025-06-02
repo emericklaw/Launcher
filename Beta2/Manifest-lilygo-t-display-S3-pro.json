@@ -1,1 +1,0 @@
-{"name":"T-Display_S3_PRO","new_install_prompt_erase": true,"builds":[{"chipFamily":"ESP32-S3","improv":false,"parts":[{"path":"https://github.com/bmorcelli/Launcher/releases/download/2.4.9/Launcher-lilygo-t-display-S3-pro.bin","offset":0}]}]}

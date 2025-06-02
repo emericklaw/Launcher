@@ -1,1 +1,0 @@
-{"name":"Marauder V4-OG and V6","new_install_prompt_erase": true,"builds":[{"chipFamily":"ESP32","improv":false,"parts":[{"path":"https://github.com/bmorcelli/Launcher/releases/download/2.4.9/Launcher-Marauder-v4-OG.bin","offset":0}]}]}

@@ -1,1 +1,0 @@
-{"name":"Elecrow ESP32 3.5in v2.2","new_install_prompt_erase": true,"builds":[{"chipFamily":"ESP32","improv":false,"parts":[{"path":"https://github.com/bmorcelli/Launcher/releases/download/2.4.9/Launcher-elecrow-35Bv2_2.bin","offset":0}]}]}

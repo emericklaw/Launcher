@@ -1,1 +1,0 @@
-{"name":"CYD-2432S028R Inverted Colors","new_install_prompt_erase": true,"builds":[{"chipFamily":"ESP32","improv":false,"parts":[{"path":"https://github.com/bmorcelli/Launcher/releases/download/2.4.9/Launcher-CYD-2-USB.bin","offset":0}]}]}

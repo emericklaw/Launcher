@@ -1,1 +1,0 @@
-{"name":"ESP32-S3-16mb","new_install_prompt_erase": true,"builds":[{"chipFamily":"ESP32-S3","improv":false,"parts":[{"path":"https://github.com/bmorcelli/Launcher/releases/download/2.4.9/Launcher-headless-esp32s3-16mb.bin","offset":0}]}]}
