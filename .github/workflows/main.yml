@@ -375,6 +375,17 @@
               }
             - {
                 vendor: "Lilygo",
+                name: "T-LoRa-Pager",
+                description: "",
+                link: "https://lilygo.cc/products/t-lora-pager",
+                family: "ESP32-S3",
+                env: "lilygo-t-lora-pager",
+                partitions: {
+                  bootloader_addr: "0x0",
+                },
+              }
+            - {
+                vendor: "Lilygo",
                 name: "T-Deck",
                 description: "(Normal and Plus)",
                 link: "https://lilygo.cc/products/t-deck",

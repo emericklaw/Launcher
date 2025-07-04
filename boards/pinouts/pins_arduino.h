@@ -4,6 +4,8 @@
 #include "lilygo-t-embed.h"
 #elif T_DECK
 #include "lilygo-t-deck.h"
+#elif T_LORA_PAGER
+#include "lilygo-t-lora-pager.h"
 #elif ARDUINO_M5STACK_CARDPUTER
 #include "m5stack-cardputer.h"
 #elif CYD
@@ -32,7 +34,7 @@
 #include "marauder-mini.h"
 #elif MARAUDERV4
 #include "marauder-v4og.h"
-#elif defined (T_DISPLAY_S3_TOUCH) || defined (T_DONGLE_S3)
+#elif defined(T_DISPLAY_S3_TOUCH) || defined(T_DONGLE_S3)
 #include "lilygo-t-display-s3-touch.h"
 #elif T_DISPLAY_S3_PRO
 #include "lilygo-t-display-s3-pro.h"

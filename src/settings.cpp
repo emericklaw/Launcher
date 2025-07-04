@@ -107,7 +107,7 @@ void settings_menu() {
     if (MAX_FAT_vfs > 0) options.push_back({"Restore FAT Vfs", [=]() { restorePartition("vfs"); }});
     if (dev_mode) options.push_back({"Boot Animation", [=]() { initDisplayLoop(); }});
     options.push_back({"Restart", [=]() { FREE_TFT ESP.restart(); }});
-#if defined(STICK_C_PLUS2) || defined(T_EMBED) || defined(STICK_C_PLUS)
+#if defined(STICK_C_PLUS2) || defined(T_EMBED) || defined(STICK_C_PLUS) || defined(T_LORA_PAGER)
     options.push_back({"Turn-off", [=]() { powerOff(); }});
 #endif
     options.push_back({"Main Menu", [=]() { returnToMenu = true; }});

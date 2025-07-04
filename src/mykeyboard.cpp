@@ -472,40 +472,9 @@ String keyboard(String mytext, int maxSize, String msg) {
                 if (y < -1) y = 3;
                 redraw = true;
             }
+#endif
 
-#elif defined(HAS_ENCODER) // T-Embed
-            if (check(SelPress)) { goto SELECT; }
-            /* Down Btn to move in X axis (to the right) */
-            if (check(NextPress)) {
-                if (check(EscPress)) {
-                    y++;
-                } else if ((x >= 3 && y < 0) || x == 11) {
-                    y++;
-                    x = 0;
-                } else x++;
-
-                if (y > 3) y = -1;
-                redraw = true;
-            }
-            /* UP Btn to move in Y axis (Downwards) */
-            if (check(PrevPress)) {
-                if (check(EscPress)) {
-                    y--;
-                } else if (x == 0) {
-                    y--;
-                    x--;
-                } else x--;
-
-                if (y < -1) {
-                    y = 3;
-                    x = 11;
-                } else if (y < 0 && x < 0) x = 3;
-                else if (x < 0) x = 11;
-
-                redraw = true;
-            }
-
-#elif defined(HAS_KEYBOARD) // Cardputer and T-Deck
+#if defined(HAS_KEYBOARD) // Cardputer, T-Deck and T-LoRa-Pager
             if (KeyStroke.pressed) {
                 wakeUpScreen();
                 tft->setCursor(cX, cY);
@@ -548,7 +517,42 @@ String keyboard(String mytext, int maxSize, String msg) {
                 if (KeyStroke.enter) { break; }
                 KeyStroke.Clear();
             }
+#if !defined(T_LORA_PAGER) // T-LoRa-Pager does not have a select button
             if (check(SelPress)) break;
+#endif
+#endif
+
+#if defined(HAS_ENCODER) // T-Embed and T-LoRa-Pager
+            if (check(SelPress)) { goto SELECT; }
+            /* Down Btn to move in X axis (to the right) */
+            if (check(NextPress)) {
+                if (check(EscPress)) {
+                    y++;
+                } else if ((x >= 3 && y < 0) || x == 11) {
+                    y++;
+                    x = 0;
+                } else x++;
+
+                if (y > 3) y = -1;
+                redraw = true;
+            }
+            /* UP Btn to move in Y axis (Downwards) */
+            if (check(PrevPress)) {
+                if (check(EscPress)) {
+                    y--;
+                } else if (x == 0) {
+                    y--;
+                    x--;
+                } else x--;
+
+                if (y < -1) {
+                    y = 3;
+                    x = 11;
+                } else if (y < 0 && x < 0) x = 3;
+                else if (x < 0) x = 11;
+
+                redraw = true;
+            }
 
 #endif
         } // end of holdCode detection
