@@ -178,8 +178,8 @@ void _setup_gpio() {
 ** Description:   Delivers the battery value from 1-100
 ***************************************************************************************/
 int getBattery() {
-    int percent = 0;
-    percent = bq.getChargePcnt(); // this function runs bq.getRemainCap()/bq.getFullChargeCap()....
+    int percent = bq.getChargePcnt();
+    if (percent == 65535) return -1;
     return (percent < 0) ? 0 : (percent >= 100) ? 100 : percent;
 }
 
