@@ -452,6 +452,7 @@
 
       const button = document.querySelector('esp-web-install-button');
       button.manifest = `${version}/Manifest-${type}.json`;
+      button.overrides = { new_install_improv_wait_time: 0 };
 
       document.querySelector('input[name="type"]:checked')?.value;
 
@@ -488,6 +489,16 @@
       link.click();
       document.body.removeChild(link);
     }
+
+    document.addEventListener('focusin', (event) => {
+      let node = event.target;
+      while (node && node !== document.body) {
+        if (node instanceof HTMLElement && node.hasAttribute('aria-hidden')) {
+          node.removeAttribute('aria-hidden');
+        }
+        node = node.parentElement;
+      }
+    });
   </script>
 
 </body>
