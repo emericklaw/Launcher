@@ -11,7 +11,14 @@
   <meta name="viewport" content="width=device-width" />
   <meta name="color-scheme" content="dark light" />
 
-  <style>
+    <script type="importmap">
+      {
+        "imports": {
+          "https://unpkg.com/atob-lite@^2.0.0?module": "data:text/javascript,export%20default%20function%20atobShim(str)%20{%20return%20globalThis.atob(str);%20}"
+        }
+      }
+    </script>
+    <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
