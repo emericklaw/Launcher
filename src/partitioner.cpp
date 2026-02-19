@@ -318,6 +318,8 @@ void dumpPartition(const char *partitionLabel, const char *outputPath) {
     outputFile.close();
     displayRedStripe("    Complete!    ");
     delay(500);
+    displayRedStripe(output);
+    delay(2500);
     Serial.printf("Dump da partição %s para o arquivo %s concluído\n", partitionLabel, outputPath);
 
     bool attach = false;
@@ -464,33 +466,140 @@ bool attachPartition(String _from, String _to) {
     }
 
     // look fot FAT/SPIFFS/LittleFS partition offset
-    to.seek(0x8000);
-    to.read(bytes, 16);
-    if (bytes[0] != 0xAA || bytes[1] != 0x50 || bytes[2] != 0x01) {
-        displayRedStripe("Has no partition table");
-        delay(2500);
-        return false; // couldn't find a valid position
-    }
-    for (int i = 0x0; i <= 0x1A0; i += 0x20) {
-        if (!to.seek(0x8000 + i)) {
-            Serial.println("Error: Could not move cursor to read partition info");
-            to.close();
-            return false;
-        }
-        to.read(bytes, 16);
+    if (to.seek(0x8000) && to.read(bytes, 16) == 16 && bytes[0] == 0xAA && bytes[1] == 0x50 &&
+        bytes[2] == 0x01) {
+        for (int i = 0x0; i <= 0x1A0; i += 0x20) {
+            if (!to.seek(0x8000 + i)) {
+                Serial.println("Error: Could not move cursor to read partition info");
+                to.close();
+                return false;
+            }
+            to.read(bytes, 16);
 
-        if (bytes[3] == 0x81 || bytes[3] == 0x82 || bytes[3] == 0x83) {
-            // Calculate offset (big endian)
-            offset = (bytes[0x06] << 16) | (bytes[0x07] << 8) | bytes[0x08];
-            Serial.printf("offset=%d\n", offset);
+            if (bytes[3] == 0x81 || bytes[3] == 0x82 || bytes[3] == 0x83) {
+                // Calculate offset (big endian)
+                offset = (bytes[0x06] << 16) | (bytes[0x07] << 8) | bytes[0x08];
+                Serial.printf("offset=%d\n", offset);
+            }
         }
     }
     to.close();
 
     if (!offset) {
-        displayRedStripe("Invalid target");
-        delay(2500);
-        return false; // couldn't find a valid position
+        const uint32_t table_offset = 0x8000;
+        const uint32_t app_offset = 0x10000;
+        const uint32_t app_size = MAX_APP;
+        const uint32_t spiffs_offset = app_offset + app_size;
+        const uint32_t spiffs_size = MAX_SPIFFS;
+
+        if (app_size == 0 || spiffs_size == 0) {
+            displayRedStripe("Invalid partition sizes");
+            delay(2500);
+            return false;
+        }
+
+        String new_path = _to;
+        int slash_pos = _to.lastIndexOf('/');
+        int dot_pos = _to.lastIndexOf('.');
+
+        int suffix = 1;
+        new_path = _to.substring(0, dot_pos) + "_with_DATA" + _to.substring(dot_pos);
+
+        while (SDM.exists(new_path)) {
+            new_path = _to.substring(0, dot_pos) + "_with_DATA_" + String(suffix) + _to.substring(dot_pos);
+            suffix++;
+        }
+
+        File original = SDM.open(_to, FILE_READ);
+        if (!original) {
+            displayRedStripe("Can't open target");
+            delay(2500);
+            return false;
+        }
+
+        File rebuilt = SDM.open(new_path, FILE_WRITE, true);
+        if (!rebuilt) {
+            displayRedStripe("Can't create target");
+            delay(2500);
+            original.close();
+            return false;
+        }
+
+        memset(buff, 0xFF, sizeof(buff));
+        rebuilt.seek(0);
+        size_t remaining = app_offset;
+        while (remaining > 0) {
+            size_t w = min((size_t)sizeof(buff), remaining);
+            rebuilt.write(buff, w);
+            remaining -= w;
+        }
+
+        uint8_t *table = (uint8_t *)heap_caps_malloc(PARTITION_SIZE, MALLOC_CAP_INTERNAL);
+        if (table == NULL) {
+            displayRedStripe("No memory");
+            delay(2500);
+            rebuilt.close();
+            original.close();
+            return false;
+        }
+
+        memset(table, 0xFF, PARTITION_SIZE);
+
+        uint8_t *entry = table;
+        entry[0] = 0xAA;
+        entry[1] = 0x50;
+        entry[2] = 0x00;
+        entry[3] = 0x00;
+        entry[4] = app_offset & 0xFF;
+        entry[5] = (app_offset >> 8) & 0xFF;
+        entry[6] = (app_offset >> 16) & 0xFF;
+        entry[7] = (app_offset >> 24) & 0xFF;
+        entry[8] = app_size & 0xFF;
+        entry[9] = (app_size >> 8) & 0xFF;
+        entry[10] = (app_size >> 16) & 0xFF;
+        entry[11] = (app_size >> 24) & 0xFF;
+        memset(entry + 12, 0, 16);
+        memcpy(entry + 12, "factory", 7);
+        memset(entry + 28, 0, 4);
+
+        entry = table + 0x20;
+        entry[0] = 0xAA;
+        entry[1] = 0x50;
+        entry[2] = 0x01;
+        entry[3] = 0x82;
+        entry[4] = spiffs_offset & 0xFF;
+        entry[5] = (spiffs_offset >> 8) & 0xFF;
+        entry[6] = (spiffs_offset >> 16) & 0xFF;
+        entry[7] = (spiffs_offset >> 24) & 0xFF;
+        entry[8] = spiffs_size & 0xFF;
+        entry[9] = (spiffs_size >> 8) & 0xFF;
+        entry[10] = (spiffs_size >> 16) & 0xFF;
+        entry[11] = (spiffs_size >> 24) & 0xFF;
+        memset(entry + 12, 0, 16);
+        memcpy(entry + 12, "spiffs", 6);
+        memset(entry + 28, 0, 4);
+
+        table[0x40] = 0xEB;
+        table[0x41] = 0xEB;
+
+        rebuilt.seek(table_offset);
+        rebuilt.write(table, PARTITION_SIZE);
+        heap_caps_free(table);
+
+        rebuilt.seek(app_offset);
+        size_t app_remaining = min((size_t)original.size(), (size_t)app_size);
+        while (app_remaining > 0) {
+            size_t r = original.read(buff, min((size_t)sizeof(buff), app_remaining));
+            if (!r) break;
+            rebuilt.write(buff, r);
+            app_remaining -= r;
+        }
+
+        rebuilt.close();
+        original.close();
+
+        _to = new_path;
+        offset = spiffs_offset;
     }
 
     File target = SDM.open(_to, FILE_WRITE);

@@ -968,6 +968,7 @@ void loopVersions(String _fid) {
         bool fat2 = Version["f2"].as<bool>();
         bool nb = Version["nb"].as<bool>();
         uint32_t app_size = Version["as"].as<uint32_t>();
+        uint32_t app_offset = Version["ao"].as<uint32_t>();
         uint32_t spiffs_size = Version["ss"].as<uint32_t>();
         uint32_t spiffs_offset = Version["so"].as<uint32_t>();
         uint32_t FAT_size[2] = {
@@ -1068,6 +1069,7 @@ void loopVersions(String _fid) {
                          String(fid),
                          String(file),
                          app_size,
+                         app_offset,
                          spiffs,
                          spiffs_offset,
                          spiffs_size,

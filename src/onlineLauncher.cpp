@@ -429,6 +429,7 @@ bool installExtFirmware(String url) {
     http.end();
     // Check if it is a valid partition table
     size_t PartitionSize = 0;
+    size_t PartitionOffset = 0x10000;
     if (buff[0] == 0xAA) {
         nb = 0;                                    // File with bootloader an partitions
         for (int i = 0x0; i <= 0x1A0; i += 0x20) { // Partition
@@ -443,6 +444,8 @@ bool installExtFirmware(String url) {
                 if (bytes[0x0A] > 0 && PartitionSize == 0) {
                     PartitionSize = (bytes[0x0A] << 16) | (bytes[0x0B] << 8) |
                                     bytes[0x0C]; // Write the size of app0 partition
+                    PartitionOffset = (bytes[0x06] << 16) | (bytes[0x07] << 8) |
+                                      bytes[0x08]; // Write the offset of app0 partition
                 }
             }
             // if (bytes[3] == 0x01) Serial.println(": PHY inicialization partition |");
@@ -476,10 +479,10 @@ bool installExtFirmware(String url) {
         size_t temp_size = 0;
         if (file_size < MAX_APP || PartitionSize <= MAX_APP) {
             temp_size = PartitionSize;
-            temp_size += 0x10000;
-            if (file_size <= temp_size) {  // Check if the file is smaller than the app0 partition
-                PartitionSize = file_size; // gets file size
-                PartitionSize -= 0x10000;  // subtracts bootloader, partitions and other junks
+            temp_size += PartitionOffset;
+            if (file_size <= temp_size) {         // Check if the file is smaller than the app0 partition
+                PartitionSize = file_size;        // gets file size
+                PartitionSize -= PartitionOffset; // subtracts bootloader, partitions and other junks
             } else {
                 PartitionSize = PartitionSize; // if file is greater then app0 partition+junk, it will
                                                // limit to app0 partition size
@@ -504,11 +507,14 @@ bool installExtFirmware(String url) {
         }
     }
     Serial.printf(
-        "url: %s\nPartitionSize: %d, spiffs: %d, spiffs_offset: %d, spiffs_size: %d, nb: %d, fat: %d, "
-        "fat_offset: "
-        "%d, fat_size: %d",
+        "url: %s"
+        "\nPartitionSize: 0x%x, PartitionOffset: 0x%x,"
+        "\nspiffs: %d, spiffs_offset: 0x%x, spiffs_size: 0x%x, "
+        "\nnb: %d,"
+        "\nfat: %d, fat_offset: 0x%x, fat_size: 0x%x",
         url.c_str(),
         PartitionSize,
+        PartitionOffset,
         spiffs,
         spiffs_offset,
         spiffs_size,
@@ -518,7 +524,17 @@ bool installExtFirmware(String url) {
         fat_size
     );
     installFirmware(
-        "", url, PartitionSize, spiffs, spiffs_offset, spiffs_size, nb, fat, fat_offset, fat_size
+        "",
+        url,
+        PartitionSize,
+        PartitionOffset,
+        spiffs,
+        spiffs_offset,
+        spiffs_size,
+        nb,
+        fat,
+        fat_offset,
+        fat_size
     );
     return true;
 }
@@ -558,10 +574,9 @@ bool clearOnlineCoredump() {
 ** Description:   installs Firmware using OTA
 ***************************************************************************************/
 void installFirmware( // adicionar "fid"
-    String fid, String file, uint32_t app_size, bool spiffs, uint32_t spiffs_offset, uint32_t spiffs_size, bool nb,
+    String fid, String file, uint32_t app_size, uint32_t app_offset, bool spiffs, uint32_t spiffs_offset, uint32_t spiffs_size, bool nb,
     bool fat, uint32_t fat_offset[2], uint32_t fat_size[2]
 ) {
-    uint32_t app_offset = 0x10000;
     if (!file.startsWith("https://")) file = M5_SERVER_PATH + file;
     String fileAddr = "https://api.launcherhub.net/download?fid=" + fid + "&file=" + file;
     if (fid == "") fileAddr = file;

@@ -504,6 +504,7 @@ void updateFromSD(String path) {
     uint32_t spiffs_offset = 0;
     uint32_t spiffs_size = 0;
     uint32_t app_size = 0;
+    uint32_t app_offset = 0;
     bool spiffs = false;
     uint32_t fat_offset_sys = 0;
     uint32_t fat_size_sys = 0;
@@ -532,9 +533,10 @@ void updateFromSD(String path) {
 
             if ((firstThreeBytes[0x03] == 0x00 || firstThreeBytes[0x03] == 0x10 ||
                  firstThreeBytes[0x03] == 0x20) &&
-                firstThreeBytes[0x06] == 0x01) {
+                app_size == 0) {
                 app_size = (firstThreeBytes[0x0A] << 16) | (firstThreeBytes[0x0B] << 8) | 0x00;
-                if (file.size() < (app_size + 0x10000)) app_size = file.size() - 0x10000;
+                app_offset = (firstThreeBytes[0x06] << 16) | (firstThreeBytes[0x07] << 8) | 0x00;
+                if (file.size() < (app_size + app_offset)) app_size = file.size() - app_offset;
                 else if (app_size > MAX_APP) app_size = MAX_APP;
             }
 
@@ -608,7 +610,7 @@ void updateFromSD(String path) {
         log_i("FATsize[0]: %d - max: %d at offset: %d", fat_size_sys, MAX_FAT_sys, fat_offset_sys);
         log_i("FATsize[1]: %d - max: %d at offset: %d", fat_size_vfs, MAX_FAT_vfs, fat_offset_vfs);
 
-        if (!file.seek(0x10000)) goto Exit;
+        if (!file.seek(app_offset)) goto Exit;
         performUpdate(file, app_size, U_FLASH);
 
         prog_handler = 1; // Install SPIFFS update
