@@ -39,9 +39,9 @@ void MassStorage::loop() {
 }
 
 void MassStorage::beginUsb() {
+    drawUSBStickIcon(false);
     setupUsbCallback();
     setupUsbEvent();
-    drawUSBStickIcon(false);
     USB.begin();
 }
 
@@ -62,6 +62,7 @@ void MassStorage::setupUsbCallback() {
 }
 
 void MassStorage::setupUsbEvent() {
+#ifndef E_PAPER_DISPLAY
     USB.onEvent([](void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
         if (event_base == ARDUINO_USB_EVENTS) {
             auto *data = reinterpret_cast<arduino_usb_event_data_t *>(event_data);
@@ -74,6 +75,7 @@ void MassStorage::setupUsbEvent() {
             }
         }
     });
+#endif
 }
 
 void MassStorage::displayMessage(String message) {
