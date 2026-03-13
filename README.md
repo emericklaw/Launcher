@@ -86,7 +86,9 @@ Things that needs to be done in next updates
 ## Latest Changelog
 * 2.6.8:
      * [ ] Custom partition builder (no more hardcoded partition lists)
-           
+     * [x] New Device: [Lilygo T-Watch-S3] (https://lilygo.cc/products/t-watch-s3?bg_ref=sDI8Bh4HmO)
+     * [x] New Device: [Lilygo T-Watch-Ultra] (https://lilygo.cc/products/t-watch-ultra?bg_ref=sDI8Bh4HmO)
+
 * 2.6.7:
      * [x] Restablished Tab5 SdCard on SPI for WiFi compatibility and refactored reboot process to powercycle the SDCard, resetting the Sdcard communication bus.
      * [x] Tab5 Now has MassStorage interface!

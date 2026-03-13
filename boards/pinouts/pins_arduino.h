@@ -1,5 +1,7 @@
 #ifdef T_EMBED_1101
 #include "lilygo-t-embed-cc1101.h"
+#elif T_WATCH_S3
+#include "lilygo-t-watch-s3.h"
 #elif ARDUINO_T_WATCH_S3_ULTRA
 #include "lilygo-t-watch-ultra.h"
 #elif T_EMBED

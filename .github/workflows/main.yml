@@ -67,6 +67,7 @@
             - { env: "lilygo-t5-epaper-s3-pro"    }
             - { env: "lilygo-t-hmi"               }
             - { env: "lilygo-t-display-S3-amoled" }
+            - { env: "lilygo-t-watch-s3"          }
             - { env: "lilygo-t-watch-ultra"       }
             - { env: "smoochiee-board"            }
             - { env: "Marauder-v4-OG"             }
