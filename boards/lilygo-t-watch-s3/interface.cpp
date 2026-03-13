@@ -1,6 +1,9 @@
 #include "powerSave.h"
+#include <SPI.h>
 #include <Wire.h>
 #include <XPowersLib.h>
+#include <driver/gpio.h>
+#include <esp_system.h>
 #include <interface.h>
 
 XPowersAXP2101 axp192;
@@ -213,4 +216,27 @@ void checkReboot() {}
 ***************************************************************************************/
 bool isCharging() {
     return axp192.isCharging(); // Return the charging status from AXP
+}
+
+void reboot() {
+    Serial.flush();
+
+    ledcWrite(TFT_BL, 0);
+    digitalWrite(TFT_BL, LOW);
+
+    drv.setWaveform(0, 0);
+    drv.setWaveform(1, 0);
+
+    axp192.enableALDO1(); //! RTC VBAT
+    axp192.enableALDO2(); //! TFT BACKLIGHT   VDD
+
+    // Force the touch controller to lose power so the next boot starts from a clean state.
+    axp192.disableALDO3();
+    axp192.disableBLDO2();
+    delay(50);
+    axp192.enableALDO3(); //! Screen touch VDD
+    axp192.enableBLDO2(); //! drv2605 enable
+
+    delay(100);
+    esp_restart();
 }
