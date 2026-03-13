@@ -1,5 +1,4 @@
-#include "core/powerSave.h"
-#include "core/utils.h"
+#include "powerSave.h"
 #include <Wire.h>
 #include <XPowersLib.h>
 #include <interface.h>
