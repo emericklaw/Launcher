@@ -84,13 +84,16 @@ Things that needs to be done in next updates
 
 
 ## Latest Changelog
+* 2.6.8:
+     * [ ] Custom partition builder (no more hardcoded partition lists)
+           
 * 2.6.7:
      * [x] Restablished Tab5 SdCard on SPI for WiFi compatibility and refactored reboot process to powercycle the SDCard, resetting the Sdcard communication bus.
      * [x] Tab5 Now has MassStorage interface!
+     * [x] Fixed M5Stack Paper S3 USB MassStorage issue https://github.com/bmorcelli/Launcher/issues/287 and OTA will show only S3 firmwares.
      * [x] Added App offset parameter to allow Launcher to be updated in Tab5, and firmwares that are placed at different factory/app0 addresses.
      * [x] Set to StickC and CPlus devices to see only ESP32 firmwares on OTA, excluding ESP32-S3 (StickS3) firmwares
-     * [x] Adjusted binary of firmware binaries that are not merged to have a partition table, allowing attaching SPIFFS partition into it. This binary will be valid ONLY for Launcher, can't be flashed alone because doesn't have a valid bootloader and partition table.
-     * [] Custom partition builder (no more hardcoded partition lists)
+     * [x] Adjusted binary of firmware binaries that are not merged to have a partition table, allowing attaching SPIFFS partition into it. This binary will be valid ONLY for Launcher, can't be flashed alone because it doesn't have a valid bootloader and partition table. https://github.com/bmorcelli/Launcher/issues/289
 
 * 2.6.6:
      * [x] [M5-StickS3](https://shop.m5stack.com/products/m5sticks3-esp32s3-mini-iot-dev-kit?ref=Pirata) port
@@ -365,4 +368,5 @@ Things that needs to be done in next updates
 * 1.0.1:
      * Fixed blackscreen and keyboard capture on Cardputer.
 </details>
+
 
