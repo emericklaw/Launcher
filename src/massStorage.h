@@ -3,7 +3,6 @@
 #ifndef __MASS_STORAGE_H__
 #define __MASS_STORAGE_H__
 
-#include <USBMSC.h>
 #include <globals.h>
 
 // All credits to @geo_tp for his incredible POC https://github.com/geo-tp/Esp32-USB-Stick
@@ -36,14 +35,7 @@ public:
     static void displayMessage(String message);
 
 private:
-    USBMSC msc;
-
-    /////////////////////////////////////////////////////////////////////////////////////
-    // Setup
-    /////////////////////////////////////////////////////////////////////////////////////
     void beginUsb(void);
-    void setupUsbCallback(void);
-    void setupUsbEvent(void);
 };
 
 int32_t usbWriteCallback(uint32_t lba, uint32_t offset, uint8_t *buffer, uint32_t bufsize);

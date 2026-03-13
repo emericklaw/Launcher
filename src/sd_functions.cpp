@@ -11,6 +11,8 @@ SPIClass sdcardSPI;
 String fileToCopy;
 String fileToUse;
 
+static constexpr uint32_t kSdSpiFrequency = 25000000;
+
 #ifndef PART_04MB
 /***************************************************************************************
 ** Function name: eraseFAT
@@ -65,11 +67,11 @@ bool setupSdCard() {
 
     sdcardSPI.begin(_sck, _miso, _mosi, _cs); // start SPI communications
     vTaskDelay(pdTICKS_TO_MS(10));
-    if (!SDM.begin(_cs, sdcardSPI))
+    if (!SDM.begin(_cs, sdcardSPI, kSdSpiFrequency))
 #elif defined(DONT_USE_INPUT_TASK)
 #if (TFT_MOSI != SDCARD_MOSI)
     sdcardSPI.begin(SDCARD_SCK, SDCARD_MISO, SDCARD_MOSI, SDCARD_CS); // start SPI communications
-    if (!SDM.begin(SDCARD_CS, sdcardSPI))
+    if (!SDM.begin(SDCARD_CS, sdcardSPI, kSdSpiFrequency))
 #else
     if (!SDM.begin(SDCARD_CS))
 #endif
@@ -77,7 +79,7 @@ bool setupSdCard() {
 #else
     sdcardSPI.begin(SDCARD_SCK, SDCARD_MISO, SDCARD_MOSI, SDCARD_CS); // start SPI communications
     vTaskDelay(pdTICKS_TO_MS(10));
-    if (!SDM.begin(SDCARD_CS, sdcardSPI))
+    if (!SDM.begin(SDCARD_CS, sdcardSPI, kSdSpiFrequency))
 #endif
     {
         // sdcardSPI.end(); // Closes SPI connections and release pin header.

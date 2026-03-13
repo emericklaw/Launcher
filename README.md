@@ -86,6 +86,7 @@ Things that needs to be done in next updates
 ## Latest Changelog
 * 2.6.7:
      * [x] Restablished Tab5 SdCard on SPI for WiFi compatibility and refactored reboot process to powercycle the SDCard, resetting the Sdcard communication bus.
+     * [x] Tab5 Now has MassStorage interface!
      * [x] Added App offset parameter to allow Launcher to be updated in Tab5, and firmwares that are placed at different factory/app0 addresses.
      * [x] Set to StickC and CPlus devices to see only ESP32 firmwares on OTA, excluding ESP32-S3 (StickS3) firmwares
      * [x] Adjusted binary of firmware binaries that are not merged to have a partition table, allowing attaching SPIFFS partition into it. This binary will be valid ONLY for Launcher, can't be flashed alone because doesn't have a valid bootloader and partition table.
