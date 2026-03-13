@@ -22,8 +22,6 @@ void _setup_gpio() {
     delay(10);
     Wire1.begin(39, 40); // touchscreen
     delay(10);
-    _rtc.setWire(&Wire); // Cplus uses Wire1 default, the lib had been changed to accept setting I2C bus
-                         // StickCPlus uses BM8563 that is the same as PCF8536
     axp192.init(Wire, 10, 11);
     axp192.setVbusVoltageLimit(XPOWERS_AXP2101_VBUS_VOL_LIM_4V36);
     axp192.setVbusCurrentLimit(XPOWERS_AXP2101_VBUS_CUR_LIM_900MA);
