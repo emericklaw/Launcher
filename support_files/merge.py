@@ -1,5 +1,6 @@
 from pathlib import Path
 import csv
+import os
 import subprocess
 from SCons.Script import Import
 
@@ -108,54 +109,47 @@ def _merge_bins_callback(target, source, env):
             env.Exit(1)
 
 
-    # Quote paths for Windows safety
-    def q(p): return f'"{p}"'
-
-    # Initialize cmd_parts as a list
+    # Build command as a list (no shell=True, no quoting needed, works on Windows)
     cmd_parts = [
-        "pio pkg exec -p \"tool-esptoolpy\" -- esptool",
+        python_exe, "-m", "esptool",
         "--chip", chip_arg,
         "merge-bin",
-        "--output", q(out_bin),
+        "--output", str(out_bin),
     ]
 
     if mcu=="esp32p4":
         cmd_parts.extend([
-            hex(0x0),"./support_files/esp32p4.bin",
-            hex(PART_TABLE_OFFSET), q(part_bin),
+            hex(0x0), str(proj_dir / "support_files/esp32p4.bin"),
+            hex(PART_TABLE_OFFSET), str(part_bin),
         ])
     else:
         cmd_parts.extend([
-            hex(boot_offset), q(boot_bin),
-            hex(PART_TABLE_OFFSET), q(part_bin),
+            hex(boot_offset), str(boot_bin),
+            hex(PART_TABLE_OFFSET), str(part_bin),
         ])
-
-
-
 
     flag_path = Path(env.subst("$PROJECT_DIR")) / ".pio" / "build" / env.subst("${PIOENV}") / "nvs_flag.txt"
     nvs_flag_present = flag_path.exists()
     if nvs_flag_present:
         print("[merge_bin] NVS flag file detected. Including UiFlow2_nvs.bin in the merge...")
         cmd_parts.extend([
-            hex(NVS_OFFSET), q(nvs_bin),
+            hex(NVS_OFFSET), str(nvs_bin),
         ])
 
     cmd_parts.extend([
-        hex(APP_OFFSET), q(app_bin),
+        hex(APP_OFFSET), str(app_bin),
     ])
 
-    # Join the list into a single string for execution
-    cmd = " ".join(cmd_parts)
-
     print("[merge_bin] Merging binaries...")
-    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    merge_env = os.environ.copy()
+    merge_env["PYTHONPATH"] = str(esptool_pkg)
+    result = subprocess.run(cmd_parts, env=merge_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     rc = result.returncode
-    # rc = env.Execute(cmd) # debug purposes
 
     if rc != 0:
         print(f"[merge_bin] Failed with exit code {rc}")
-        # env.Exit(rc)
+        print(result.stderr.decode(errors="replace"))
+        env.Exit(rc)
     else:
         try:
             size = out_bin.stat().st_size

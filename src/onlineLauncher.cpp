@@ -80,9 +80,6 @@ void wifiConnect(String ssid, int encryptation, bool isAP) {
     } else { // Running in Access point mode
         IPAddress AP_GATEWAY(172, 0, 0, 1);
         WiFi.mode(WIFI_AP);
-#if CONFIG_ESP_HOSTED_ENABLED
-        vTaskDelay(500 / portTICK_PERIOD_MS);
-#endif
         WiFi.softAPConfig(AP_GATEWAY, AP_GATEWAY, IPAddress(255, 255, 255, 0));
         WiFi.softAP("Launcher", "", 6, 0, 1, false);
         Serial.print("IP: ");
@@ -92,12 +89,12 @@ END:
     delay(0);
 }
 void connectWifi() {
-    int nets;
-    // WiFi.disconnect(true);
+    int nets = 0;
     WiFi.mode(WIFI_MODE_STA);
     displayRedStripe("Scanning...");
 #if CONFIG_ESP_HOSTED_ENABLED
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    WiFi.setAutoReconnect(false);
+    WiFi.disconnect(false);
 #endif
     nets = WiFi.scanNetworks();
     options = {};

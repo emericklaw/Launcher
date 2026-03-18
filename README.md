@@ -86,6 +86,7 @@ Things that needs to be done in next updates
 ## Latest Changelog
 * 2.6.8:
      * [ ] Custom partition builder (no more hardcoded partition lists)
+     * [x] Fix M5Stack Tab5 Wifi scan and WebUI in AP mode
      * [x] New Device: [Lilygo T-Watch-S3] (https://lilygo.cc/products/t-watch-s3?bg_ref=sDI8Bh4HmO)
      * [x] New Device: [Lilygo T-Watch-Ultra] (https://lilygo.cc/products/t-watch-ultra?bg_ref=sDI8Bh4HmO)
 

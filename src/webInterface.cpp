@@ -669,9 +669,15 @@ void startWebUi(String ssid, int encryptation, bool mode_ap) {
     server->end();
     vTaskDelay(pdTICKS_TO_MS(100));
     delete server;
+#if CONFIG_ESP_HOSTED_ENABLED
+    // ESP32-P4 and hosted wifi devices should not never set Wifi Off
+    WiFi.softAPdisconnect(false);
+    WiFi.mode(WIFI_MODE_STA);
+#else
     WiFi.softAPdisconnect(true);
     WiFi.disconnect(true, true);
     WiFi.mode(WIFI_OFF);
+#endif
 
     tft->fillScreen(BGCOLOR);
 }
@@ -730,8 +736,15 @@ void startWebUi(String ssid, int encryptation, bool mode_ap) {
     server->end();
     vTaskDelay(pdTICKS_TO_MS(100));
     delete server;
+#if CONFIG_ESP_HOSTED_ENABLED
+    // ESP32-P4 and hosted wifi devices should not never set Wifi Off
+    WiFi.softAPdisconnect(false);
+    WiFi.mode(WIFI_MODE_STA);
+#else
     WiFi.softAPdisconnect(true);
     WiFi.disconnect(true, true);
+    WiFi.mode(WIFI_OFF);
+#endif
 }
 
 #endif
