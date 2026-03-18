@@ -605,6 +605,7 @@ void startWebUi(String ssid, int encryptation, bool mode_ap) {
     config.webserverporthttp = default_webserverporthttp;
 
     // log_i("Connecting to WiFi");
+    if (WiFi.status() == WL_CONNECTED && mode_ap) { WiFi.disconnect(false); }
     if (WiFi.status() != WL_CONNECTED) {
         // Choose wifi access mode
         wifiConnect(ssid, encryptation, mode_ap);
