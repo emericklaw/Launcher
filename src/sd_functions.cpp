@@ -291,6 +291,8 @@ void readFs(String &folder, std::vector<Option> &opt) {
 
         uint16_t color = FGCOLOR - 0x1111;
 
+        if (noDotFiles && nameOnly.startsWith(".")) { continue; }
+
         if (!isDir) {
             int dotIndex = nameOnly.lastIndexOf(".");
             String ext = dotIndex >= 0 ? nameOnly.substring(dotIndex + 1) : "";

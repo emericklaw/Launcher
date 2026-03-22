@@ -10,6 +10,7 @@ config.conf JSON structure
    {
       "rot": 1,
       "onlyBins":1,
+      "noDotFiles":1,
       "bright":100,
       "askSpiffs":1,
       "wui_usr":"admin",
@@ -36,6 +37,7 @@ void setBrightnessMenu();
 void setBrightness(int bright, bool save = true);
 void getBrightness();
 bool gsetOnlyBins(bool set = false, bool value = true);
+bool gsetNoDotFiles(bool set = false, bool value = true);
 bool gsetAskSpiffs(bool set = false, bool value = true);
 int gsetRotation(bool set = false);
 void getConfigs();

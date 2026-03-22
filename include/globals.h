@@ -209,6 +209,8 @@ extern String fileToCopy;
 
 extern bool onlyBins;
 
+extern bool noDotFiles;
+
 extern int rotation;
 
 extern bool returnToMenu;

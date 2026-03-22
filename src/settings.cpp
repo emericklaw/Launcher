@@ -150,6 +150,16 @@ void settings_menu() {
                                    gsetOnlyBins(true, true);
                                    saveConfigs();
                                }});
+        if (noDotFiles)
+            options.push_back({"Show Dotfiles", [=]() {
+                                   gsetNoDotFiles(true, false);
+                                   saveConfigs();
+                               }});
+        else
+            options.push_back({"Hide Dotfiles", [=]() {
+                                   gsetNoDotFiles(true, true);
+                                   saveConfigs();
+                               }});
     }
 
     if (askSpiffs)
@@ -241,6 +251,25 @@ void getBrightness() {
 #else
     _setBrightness(bright);
 #endif
+}
+
+/*********************************************************************
+**  Function: gsetNoDotFiles
+**  get/set noDotFiles global
+**********************************************************************/
+bool gsetNoDotFiles(bool set, bool value) {
+    bool result = false;
+
+    if (noDotFiles > 1) { set = true; }
+
+    if (noDotFiles == 0) result = false;
+    else result = true;
+
+    if (set) {
+        result = value;
+        noDotFiles = value; // update the global variable
+    }
+    return result;
 }
 
 /*********************************************************************
@@ -472,7 +501,7 @@ bool config_exists() {
         ;
         if (conf) {
             conf.printf(
-                "[{\"%s\":%d,\"dimmerSet\":10,\"onlyBins\":1,\"bright\":100,\"askSpiffs\":1,\"wui_usr\":"
+                "[{\"%s\":%d,\"dimmerSet\":10,\"onlyBins\":1,\"noDotFiles\":1,\"bright\":100,\"askSpiffs\":1,\"wui_usr\":"
                 "\"admin\",\"wui_pwd\":\"launcher\",\"dwn_path\":\"/downloads/"
                 "\",\"FGCOLOR\":2016,\"BGCOLOR\":0,\"ALCOLOR\":63488,\"even\":13029,\"odd\":12485,\",\"dev\":"
                 "0,\"wifi\":[{\"ssid\":\"myNetSSID\",\"pwd\":\"myNetPassword\"}], \"favorite\":[]}]",
@@ -498,6 +527,7 @@ bool saveIntoNVS() {
     err |= nvsHandle->set_item("dimtime", dimmerSet);
     err |= nvsHandle->set_item("bright", bright);
     err |= nvsHandle->set_item("onlyBins", onlyBins);
+    err |= nvsHandle->set_item("noDotFiles", noDotFiles);
     err |= nvsHandle->set_item("askSpiffs", askSpiffs);
     err |= nvsHandle->set_item("rotation", rotation);
     err |= nvsHandle->set_item("FGCOLOR", FGCOLOR);
@@ -592,6 +622,7 @@ void defaultValues() {
     dimmerSet = 20;
     bright = 100;
     onlyBins = true;
+    noDotFiles = true;
     askSpiffs = true;
 #if defined(E_PAPER_DISPLAY) && defined(USE_M5GFX)
     FGCOLOR = 0x0000;
@@ -636,6 +667,7 @@ bool getFromNVS() {
     err = nvsHandle->get_item("dimtime", dimmerSet);
     err |= nvsHandle->get_item("bright", bright);
     err |= nvsHandle->get_item("onlyBins", onlyBins);
+    err |= nvsHandle->get_item("noDotFiles", noDotFiles);
     err |= nvsHandle->get_item("askSpiffs", askSpiffs);
     err |= nvsHandle->get_item("rotation", rotation);
     err |= nvsHandle->get_item("FGCOLOR", FGCOLOR);
@@ -768,6 +800,12 @@ void getConfigs() {
             JsonObject setting = settings[0];
             if (setting["onlyBins"].is<bool>()) {
                 onlyBins = gsetOnlyBins(setting["onlyBins"].as<bool>());
+            } else {
+                count++;
+                log_i("Fail");
+            }
+            if (setting["noDotFiles"].is<bool>()) {
+                noDotFiles = gsetNoDotFiles(setting["noDotFiles"].as<bool>());
             } else {
                 count++;
                 log_i("Fail");
@@ -939,6 +977,7 @@ void saveConfigs() {
         }
         // Update JSON document with current configuration
         setting["onlyBins"] = onlyBins;
+        setting["noDotFiles"] = noDotFiles;
         setting["askSpiffs"] = askSpiffs;
         setting["bright"] = bright;
         setting["dimmerSet"] = dimmerSet;
