@@ -95,6 +95,7 @@ int currentIndex;
 int rotation = ROTATION;
 bool sdcardMounted;
 bool onlyBins;
+bool noDotFiles;
 bool returnToMenu;
 bool update;
 bool askSpiffs;
