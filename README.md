@@ -23,6 +23,7 @@ Join our [Discord community](https://discord.gg/BE9by2a2FF)
 * Make sure your SD is a SDHC (Not SDXC)
 * Maximum size of 32Gb (I use 8 or 16Gb)
 * Formatted in FAT32 (Use [Rufus tool](https://rufus.ie/) to format your SD Card)
+* Ensure the partition scheme is MBR, not GPT
 
 ## With Launcher you'll be able to:
 <details>
