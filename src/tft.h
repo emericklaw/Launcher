@@ -1,6 +1,159 @@
 #ifndef __TFT_H
 #define __TFT_H
-#if defined(E_PAPER_DISPLAY) && !defined(GxEPD2_DISPLAY) && !defined(USE_M5GFX)
+#if defined(USE_EPD_PAINTER)
+#include <EPD_Painter_Adafruit.h>
+#include <EPD_Painter_presets.h>
+#include <LittleFS.h>
+
+#define BLACK 0x0000
+#define WHITE 0xFFFF
+#define RED 0xF800
+#define GREEN 0x07E0
+#define DARKCYAN 0x03EF
+#define DARKGREY 0x4208
+#define LIGHTGREY 0xC618
+
+class Ard_eSPI : public EPD_PainterAdafruit {
+public:
+    Ard_eSPI()
+        : EPD_PainterAdafruit(
+              // Match the rest of the codebase: construct the canvas in portrait
+              // and let setRotation() switch between portrait/landscape views.
+              EPD_PAINTER_PRESET, true
+          ) {}
+
+    inline bool begin() {
+        LittleFS.begin(true);
+        _textsize = 1;
+        _textcolor = BLACK;
+        _textbgcolor = WHITE;
+        bool r = EPD_PainterAdafruit::begin();
+        EPD_PainterAdafruit::clear();
+        EPD_PainterAdafruit::clear();
+        return r;
+    }
+
+    inline void display(bool a = false) {
+        (void)a;
+        paint();
+        paint();
+    }
+
+    inline void setFullWindow() {}
+    inline void stopCallback() {}
+    inline void startCallback() {}
+
+    inline int getTextsize() { return _textsize; }
+    inline uint16_t getTextcolor() { return _textcolor; }
+    inline uint16_t getTextbgcolor() { return _textbgcolor; }
+
+    inline void setTextSize(uint32_t s) {
+        _textsize = s;
+        EPD_PainterAdafruit::setTextSize(s);
+    }
+
+    inline void setTextColor(uint16_t fg, uint16_t bg) {
+        _textcolor = fg;
+        _textbgcolor = bg;
+        EPD_PainterAdafruit::setTextColor(mapColor(fg), mapColor(bg));
+    }
+
+    inline void setTextColor(uint16_t fg) {
+        _textcolor = fg;
+        EPD_PainterAdafruit::setTextColor(mapColor(fg));
+    }
+
+    inline void fillScreen(uint16_t c) {
+        EPD_PainterAdafruit::clear();
+        EPD_PainterAdafruit::fillScreen(mapColor(c));
+    }
+    inline void fillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c) {
+        EPD_PainterAdafruit::fillRect(x, y, w, h, mapColor(c));
+    }
+    inline void drawRect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c) {
+        EPD_PainterAdafruit::drawRect(x, y, w, h, mapColor(c));
+    }
+    inline void drawRoundRect(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16_t c) {
+        EPD_PainterAdafruit::drawRoundRect(x, y, w, h, r, mapColor(c));
+    }
+    inline void fillRoundRect(int32_t x, int32_t y, int32_t w, int32_t h, int32_t r, uint16_t c) {
+        EPD_PainterAdafruit::fillRoundRect(x, y, w, h, r, mapColor(c));
+    }
+    inline void drawLine(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint16_t c) {
+        EPD_PainterAdafruit::drawLine(x0, y0, x1, y1, mapColor(c));
+    }
+    inline void drawPixel(int32_t x, int32_t y, uint16_t c) {
+        EPD_PainterAdafruit::drawPixel(x, y, mapColor(c));
+    }
+
+    inline void drawChar2(int16_t x, int16_t y, char c, int16_t a, int16_t b) {
+        EPD_PainterAdafruit::drawChar(x, y, c, mapColor(a), mapColor(b), _textsize);
+    }
+
+    inline void drawString(String s, uint16_t x, uint16_t y) {
+        int16_t x1, y1;
+        uint16_t w, h;
+        int16_t oldX = getCursorX();
+        int16_t oldY = getCursorY();
+        getTextBounds(s.c_str(), 0, 0, &x1, &y1, &w, &h);
+        setCursor(x, y);
+        print(s);
+        setCursor(oldX, oldY);
+    }
+
+    inline void drawCentreString(String s, uint16_t x, uint16_t y, int f) {
+        (void)f;
+        int16_t x1, y1;
+        uint16_t w, h;
+        int16_t oldX = getCursorX();
+        int16_t oldY = getCursorY();
+        getTextBounds(s.c_str(), 0, 0, &x1, &y1, &w, &h);
+        setCursor(x - w / 2, y);
+        print(s);
+        setCursor(oldX, oldY);
+    }
+
+    inline void drawRightString(String s, uint16_t x, uint16_t y, int f) {
+        (void)f;
+        int16_t x1, y1;
+        uint16_t w, h;
+        int16_t oldX = getCursorX();
+        int16_t oldY = getCursorY();
+        getTextBounds(s.c_str(), 0, 0, &x1, &y1, &w, &h);
+        setCursor(x - w, y);
+        print(s);
+        setCursor(oldX, oldY);
+    }
+
+    inline void drawArc(int16_t x, int16_t y, int16_t r, int16_t ir, int16_t sA, int16_t eA, int16_t fg) {
+        (void)x;
+        (void)y;
+        (void)r;
+        (void)ir;
+        (void)sA;
+        (void)eA;
+        (void)fg;
+    }
+
+private:
+    uint32_t _textsize = 1;
+    uint16_t _textcolor = BLACK;
+    uint16_t _textbgcolor = WHITE;
+
+    static uint8_t mapColor(uint16_t color) {
+        const uint8_t r = ((color >> 11) & 0x1F) * 255 / 31;
+        const uint8_t g = ((color >> 5) & 0x3F) * 255 / 63;
+        const uint8_t b = (color & 0x1F) * 255 / 31;
+        const uint16_t luma = static_cast<uint16_t>((r * 299U + g * 587U + b * 114U) / 1000U);
+
+        if (luma >= 192) return 0;
+        if (luma >= 128) return 1;
+        if (luma >= 64) return 2;
+        return 3;
+    }
+};
+
+#elif defined(USE_EPDIY)
 #include <EPD_translate.h>
 #define DARKGREY TFT_DARKGREY
 #define BLACK TFT_BLACK
@@ -10,18 +163,63 @@
 #define DARKCYAN TFT_DARKCYAN
 #define LIGHTGREY TFT_LIGHTGREY
 
+// Forward-declare the board and display symbols selected via build flags.
+// EPD_BOARD_DEFINITION and EPD_DISPLAY_DEFINITION are set in the board's
+// platformio.ini, e.g. -DEPD_BOARD_DEFINITION=epd_board_lilygo_t5_s3
+extern const EpdBoardDefinition EPD_BOARD_DEFINITION;
+extern const EpdDisplay_t EPD_DISPLAY_DEFINITION;
+
 class Ard_eSPI : public EPD_translate {
 public:
+    // Track text state locally because the new EPD_translate exposes no
+    // public textsize / textcolor / textbgcolor fields.
+    uint32_t textsize = 1;
+    uint16_t textcolor = TFT_BLACK;
+    uint16_t textbgcolor = TFT_WHITE;
+
     inline int getTextsize() { return textsize; };
     inline uint16_t getTextcolor() { return textcolor; };
     inline uint16_t getTextbgcolor() { return textbgcolor; };
+
+    void setTextSize(uint32_t s) {
+        textsize = s;
+        EPD_translate::setTextSize((uint8_t)s);
+    }
+    void setTextColor(uint16_t fg, uint16_t bg) {
+        textcolor = fg;
+        textbgcolor = bg;
+        EPD_translate::setTextColor(fg, bg);
+    }
+    void setTextColor(uint16_t fg) {
+        textcolor = fg;
+        EPD_translate::setTextColor(fg);
+    }
+
+    // Bring base-class overloads into scope to avoid name hiding.
+    using EPD_translate::drawCentreString;
+    using EPD_translate::drawRightString;
+    using EPD_translate::drawString;
+    using EPD_translate::print;
+    using EPD_translate::println;
+
+    // String overloads — display.cpp / mykeyboard.cpp pass Arduino String objects.
+    inline void drawString(String s, int x, int y) { EPD_translate::drawString(s.c_str(), x, y); }
+    inline void drawCentreString(String s, int x, int y, int f) {
+        EPD_translate::drawCentreString(s.c_str(), x, y, f);
+    }
+    inline void drawRightString(String s, int x, int y, int f) {
+        EPD_translate::drawRightString(s.c_str(), x, y, f);
+    }
+    inline void print(String s) { EPD_translate::print(s.c_str()); }
+    inline void println(String s) { EPD_translate::println(s.c_str()); }
+
     inline void drawChar2(uint32_t x, uint32_t y, char c, uint16_t a, uint16_t b) {
-        EPD_translate::drawChar(c, x, y);
+        EPD_translate::drawChar(c, (int)x, (int)y);
     };
     inline void drawArc(int a, int b, int c, int d, int e, int f, int g) {};
-    inline void begin() { EPD_translate::init(); };
+    inline void begin() { EPD_translate::init(&EPD_BOARD_DEFINITION, &EPD_DISPLAY_DEFINITION); };
     void setFullWindow() {};
-    inline void display(bool a = false) {};
+    inline void display(bool a = false) { EPD_translate::epdPushImage(); };
 
 private:
 };

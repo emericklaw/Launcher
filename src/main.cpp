@@ -32,6 +32,10 @@ uint32_t MAX_FAT_sys = 0;
 uint16_t FGCOLOR = BLACK;
 uint16_t ALCOLOR = BLACK;
 uint16_t BGCOLOR = WHITE;
+#elif E_PAPER_DISPLAY
+uint16_t FGCOLOR = BLACK;
+uint16_t ALCOLOR = 0x8888;
+uint16_t BGCOLOR = WHITE;
 #else
 uint16_t FGCOLOR = GREEN;
 uint16_t ALCOLOR = RED;

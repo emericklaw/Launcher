@@ -3,8 +3,6 @@
 #include <Wire.h>
 #include <interface.h>
 
-#include "epd_driver.h"
-#include "utilities.h"
 TouchDrvGT911 touch;
 
 #include <bq27220.h>
@@ -13,63 +11,87 @@ BQ27220 bq;
 #include <XPowersLib.h>
 XPowersPPM PPM;
 
+bool isH752_1 = false;
+
 #define BOARD_I2C_SDA 6
 #define BOARD_I2C_SCL 5
 #define BOARD_SENSOR_IRQ 15
 #define BOARD_TOUCH_RST 41
 
-/***************************************************************************************
-** Function name: _setup_gpio()
-** Location: main.cpp
-** Description:   initial setup for the device
-***************************************************************************************/
-void _setup_gpio() {
-    pinMode(SEL_BTN, INPUT);
-    pinMode(DW_BTN, INPUT);
+// Aliases matching what utilities.h (LilyGo-EPD47) used to provide
+#define BOARD_SDA BOARD_I2C_SDA
+#define BOARD_SCL BOARD_I2C_SCL
+#define TOUCH_INT 15 // GT911 interrupt pin on T5 S3 E-Paper Pro H752
 
-    // CS pins of SPI devices to HIGH
-    pinMode(46, OUTPUT); // LORA module
-    digitalWrite(46, HIGH);
+namespace {
+TwoWire *activeI2c() {
+    if (tft == nullptr) return nullptr;
+    EPD_Painter::Config cfg = tft->getConfig();
+    return cfg.i2c.wire;
+}
 
-    Wire.begin(BOARD_SDA, BOARD_SCL);
+int pmicReadReg(uint8_t devAddr, uint8_t regAddr, uint8_t *data, uint8_t len) {
+    TwoWire *wire = activeI2c();
+    if (wire == nullptr) return -1;
 
-    // Assuming that the previous touch was in sleep state, wake it up
-    pinMode(TOUCH_INT, OUTPUT);
-    digitalWrite(TOUCH_INT, HIGH);
+    wire->beginTransmission(devAddr);
+    wire->write(regAddr);
+    if (wire->endTransmission() != 0) return -1;
 
-    /*
-     * The touch reset pin uses hardware pull-up,
-     * and the function of setting the I2C device address cannot be used.
-     * Use scanning to obtain the touch device address.*/
-    uint8_t touchAddress = 0;
-    Wire.beginTransmission(0x14);
-    if (Wire.endTransmission() == 0) { touchAddress = 0x14; }
-    Wire.beginTransmission(0x5D);
-    if (Wire.endTransmission() == 0) { touchAddress = 0x5D; }
-    if (touchAddress == 0) {
+    const size_t read = wire->requestFrom((int)devAddr, (int)len);
+    if (read != len) return -1;
+
+    for (uint8_t i = 0; i < len; ++i) {
+        if (!wire->available()) return -1;
+        data[i] = wire->read();
+    }
+    return 0;
+}
+
+int pmicWriteReg(uint8_t devAddr, uint8_t regAddr, uint8_t *data, uint8_t len) {
+    TwoWire *wire = activeI2c();
+    if (wire == nullptr) return -1;
+
+    wire->beginTransmission(devAddr);
+    wire->write(regAddr);
+    wire->write(data, len);
+    return wire->endTransmission() == 0 ? 0 : -1;
+}
+} // namespace
+
+bool startPeripherals(uint8_t touchAddress, int8_t rst, int8_t irq) {
+    TwoWire *wire = activeI2c();
+    if (wire == nullptr) {
+        Serial.println("EPD_Painter I2C bus is not available");
+        return false;
+    }
+
+    EPD_Painter::Config cfg = tft->getConfig();
+
+    pinMode(irq, OUTPUT);
+    digitalWrite(irq, HIGH);
+    touch.setPins(rst, irq);
+    if (!touch.begin(*wire, touchAddress, cfg.i2c.sda, cfg.i2c.scl)) {
         while (1) {
             Serial.println("Failed to find GT911 - check your wiring!");
             delay(1000);
         }
     }
-    touch.setPins(-1, TOUCH_INT);
-    if (!touch.begin(Wire, touchAddress, BOARD_SDA, BOARD_SCL)) {
-        while (1) {
-            Serial.println("Failed to find GT911 - check your wiring!");
-            delay(1000);
-        }
-    }
-    touch.setMaxCoordinates(EPD_WIDTH, EPD_HEIGHT);
+    touch.setMaxCoordinates(960, 540); // ED047TC2: 960x540 native resolution
     touch.setSwapXY(true);
     touch.setMirrorXY(false, true);
 
     Serial.println("Started Touchscreen poll...");
 
     // BQ25896 --- 0x6B
-    Wire.beginTransmission(0x6B);
-    if (Wire.endTransmission() == 0) {
-        // battery_25896.begin();
-        PPM.init(Wire, BOARD_SDA, BOARD_SCL, BQ25896_SLAVE_ADDRESS);
+    wire->beginTransmission(0x6B);
+    if (wire->endTransmission() == 0) {
+        // Reuse the EPD_Painter I2C bus through callbacks so XPowers does not
+        // call TwoWire::begin() again on an already-initialized bus.
+        if (!PPM.begin(BQ25896_SLAVE_ADDRESS, pmicReadReg, pmicWriteReg)) {
+            Serial.println("Failed to initialize XPowers PPM");
+            return false;
+        }
         // Set the minimum operating voltage. Below this voltage, the PPM will protect
         PPM.setSysPowerDownVoltage(3300);
         // Set input current limit, default is 500mA
@@ -91,6 +113,26 @@ void _setup_gpio() {
         PPM.enableCharge();
         PPM.disableOTG();
     }
+
+    return true;
+}
+
+/***************************************************************************************
+** Function name: _setup_gpio()
+** Location: main.cpp
+** Description:   initial setup for the device
+***************************************************************************************/
+void _setup_gpio() {
+    pinMode(SEL_BTN, INPUT);
+    pinMode(DW_BTN, INPUT);
+
+    // CS pins of SPI devices to HIGH
+    pinMode(46, OUTPUT); // LORA module
+    digitalWrite(46, HIGH);
+
+    // Assuming that the previous touch was in sleep state, wake it up
+    pinMode(TOUCH_INT, OUTPUT);
+    digitalWrite(TOUCH_INT, HIGH);
 }
 
 /***************************************************************************************
@@ -103,6 +145,11 @@ void _setup_gpio() {
 #define TFT_BRIGHT_FREQ 5000
 #define TFT_BL 40
 void _post_setup_gpio() {
+    uint8_t touchAddress = 0x5D; // GT911 default I2C address
+    EPD_Painter::Config cfg = tft->getConfig();
+    if (cfg.i2c.sda == 6) startPeripherals(touchAddress, 41, 15);
+    else startPeripherals(touchAddress, 9, 3);
+
     // Brightness control must be initialized after tft in this case @Pirata
     pinMode(TFT_BL, OUTPUT);
     ledcAttach(TFT_BL, TFT_BRIGHT_FREQ, TFT_BRIGHT_Bits);
@@ -188,7 +235,10 @@ void InputHandler(void) {
 ** location: mykeyboard.cpp
 ** Turns off the device (or try to)
 **********************************************************************/
-void powerOff() {}
+void powerOff() {
+    initDisplay(true);
+    PPM.shutdown();
+}
 
 /*********************************************************************
 ** Function: checkReboot

@@ -201,7 +201,8 @@ void settings_menu() {
     if (dev_mode) options.push_back({"Boot Animation", [=]() { initDisplayLoop(); }});
     if (dev_mode) options.push_back({"Deactivate Dev", [=]() { dev_mode = false; }});
     options.push_back({"Restart", [=]() { FREE_TFT reboot(); }});
-#if defined(STICK_C_PLUS2) || defined(T_EMBED) || defined(STICK_C_PLUS) || defined(T_LORA_PAGER)
+#if defined(STICK_C_PLUS2) || defined(T_EMBED) || defined(STICK_C_PLUS) || defined(T_LORA_PAGER) ||          \
+    defined(LYLYGO_T5S3_PRO)
     options.push_back({"Turn-off", [=]() { powerOff(); }});
 #endif
 
@@ -501,7 +502,8 @@ bool config_exists() {
         ;
         if (conf) {
             conf.printf(
-                "[{\"%s\":%d,\"dimmerSet\":10,\"onlyBins\":1,\"noDotFiles\":1,\"bright\":100,\"askSpiffs\":1,\"wui_usr\":"
+                "[{\"%s\":%d,\"dimmerSet\":10,\"onlyBins\":1,\"noDotFiles\":1,\"bright\":100,\"askSpiffs\":1,"
+                "\"wui_usr\":"
                 "\"admin\",\"wui_pwd\":\"launcher\",\"dwn_path\":\"/downloads/"
                 "\",\"FGCOLOR\":2016,\"BGCOLOR\":0,\"ALCOLOR\":63488,\"even\":13029,\"odd\":12485,\",\"dev\":"
                 "0,\"wifi\":[{\"ssid\":\"myNetSSID\",\"pwd\":\"myNetPassword\"}], \"favorite\":[]}]",
@@ -624,7 +626,7 @@ void defaultValues() {
     onlyBins = true;
     noDotFiles = true;
     askSpiffs = true;
-#if defined(E_PAPER_DISPLAY) && defined(USE_M5GFX)
+#if defined(E_PAPER_DISPLAY)
     FGCOLOR = 0x0000;
     BGCOLOR = 0xFFFF;
     ALCOLOR = 0x8888;

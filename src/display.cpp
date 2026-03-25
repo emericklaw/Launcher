@@ -9,7 +9,7 @@
 
 #if defined(HEADLESS)
 SerialDisplayClass *tft = new SerialDisplayClass();
-#elif defined(E_PAPER_DISPLAY) || defined(USE_TFT_ESPI) || defined(USE_LOVYANGFX) ||                         \
+#elif defined(USE_EPD_PAINTER) || defined(USE_EPDIY) || defined(USE_TFT_ESPI) || defined(USE_LOVYANGFX) ||   \
     defined(GxEPD2_DISPLAY) || defined(USE_M5GFX)
 Ard_eSPI *tft = new Ard_eSPI();
 #else
