@@ -463,6 +463,13 @@ void loop() {
 #endif
          [=]() { settings_menu(); }
         }
+    // Add power off option for devices that are not easy to turn off
+    // on e-paper, it keeps the Launcher bootscreen printed
+#if defined(T_EMBED) || defined(STICK_C_PLUS) || defined(T_LORA_PAGER) || defined(LYLYGO_T5S3_PRO) ||        \
+    defined(ARDUINO_M5STACK_PAPERS3) || defined(ARDUINO_M5STACK_PAPER) || defined(LYLYGO_TDECK_PRO)
+        ,
+        {"OFF", "Turn off Device", [=]() { powerOff(); }}
+#endif
     };
     opt = menuItems.size(); // number of options in the menu
     update_sd = sdcardMounted;
@@ -488,9 +495,6 @@ void loop() {
             LongPress = false;
             returnToMenu = false;
             tft->display(false);
-#ifdef E_PAPER_DISPLAY
-            vTaskDelay(pdTICKS_TO_MS(200));
-#endif
             if (first_loop) {
                 first_loop = false;
                 delay(350);
@@ -552,8 +556,7 @@ void loop() {
 }
 
 #else
-void loop() {
-    // Start SD card, If there's no SD Card installed, see if there's ssid saved on memory,
+void loop() { // Start SD card, If there's no SD Card installed, see if there's ssid saved on memory,
     Serial.print(
         "     _                            _               \n"
         "    | |                          | |              \n"

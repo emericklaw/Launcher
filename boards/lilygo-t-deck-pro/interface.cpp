@@ -375,6 +375,7 @@ void InputHandler(void) {
         if (keyVal != '\0') {
             KeyStroke.Clear();
             if (keyVal == KEY_BACKSPACE) {
+                KeyStroke.pressed = true;
                 KeyStroke.del = true;
                 EscPress = true;
                 KeyStroke.exit_key = true;
@@ -387,8 +388,8 @@ void InputHandler(void) {
                 KeyStroke.word.push_back(keyVal);
                 KeyStroke.pressed = true;
             }
-            _tmptmp = millis();
         }
+        _tmptmp = millis();
     } else KeyStroke.Clear();
 }
 
@@ -397,7 +398,13 @@ void InputHandler(void) {
 ** location: mykeyboard.cpp
 ** Turns off the device (or try to)
 **********************************************************************/
-void powerOff() {}
+void powerOff() {
+    tft->fillScreen(BGCOLOR);
+    initDisplay(true);
+    delay(1000);
+    PPM.shutdown();
+    while (1) delay(100);
+}
 
 /*********************************************************************
 ** Function: checkReboot

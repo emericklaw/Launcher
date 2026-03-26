@@ -204,6 +204,30 @@ void InputHandler(void) {
     static long _tmptmp;
     TouchPointPro t;
     uint8_t touched = 0;
+    uint8_t rot = 5;
+    if (rot != rotation) {
+        if (rotation == 1) {
+            touch.setMaxCoordinates(960, 540);
+            touch.setSwapXY(true);
+            touch.setMirrorXY(false, true);
+        }
+        if (rotation == 3) {
+            touch.setMaxCoordinates(960, 540);
+            touch.setSwapXY(true);
+            touch.setMirrorXY(true, false);
+        }
+        if (rotation == 0) {
+            touch.setMaxCoordinates(540, 960);
+            touch.setSwapXY(false);
+            touch.setMirrorXY(false, false);
+        }
+        if (rotation == 2) {
+            touch.setMaxCoordinates(540, 960);
+            touch.setSwapXY(false);
+            touch.setMirrorXY(true, true);
+        }
+        rot = rotation;
+    }
     touched = touch.getPoint(&t.x, &t.y);
     if ((millis() - _tmptmp) > 150 || LongPress) { // one reading each 500ms
 
@@ -236,8 +260,11 @@ void InputHandler(void) {
 ** Turns off the device (or try to)
 **********************************************************************/
 void powerOff() {
+    tft->fillScreen(BGCOLOR);
     initDisplay(true);
+    delay(1000);
     PPM.shutdown();
+    while (1) delay(100);
 }
 
 /*********************************************************************

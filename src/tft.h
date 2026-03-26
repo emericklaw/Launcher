@@ -39,10 +39,6 @@ public:
         paint();
     }
 
-    inline void setFullWindow() {}
-    inline void stopCallback() {}
-    inline void startCallback() {}
-
     inline int getTextsize() { return _textsize; }
     inline uint16_t getTextcolor() { return _textcolor; }
     inline uint16_t getTextbgcolor() { return _textbgcolor; }
@@ -218,7 +214,6 @@ public:
     };
     inline void drawArc(int a, int b, int c, int d, int e, int f, int g) {};
     inline void begin() { EPD_translate::init(&EPD_BOARD_DEFINITION, &EPD_DISPLAY_DEFINITION); };
-    void setFullWindow() {};
     inline void display(bool a = false) { EPD_translate::epdPushImage(); };
 
 private:
@@ -233,13 +228,13 @@ private:
 #define BOARD_SPI_SCK 36
 #define BOARD_SPI_MOSI 33
 
-#define DARKGREY 0x8888
-#define BLACK GxEPD_WHITE
-#define RED GxEPD_WHITE
-#define WHITE GxEPD_BLACK
-#define GREEN 0xAAAA
-#define DARKCYAN 0x6666
-#define LIGHTGREY 0x4444
+#define DARKGREY GxEPD_DARKGREY
+#define BLACK GxEPD_BLACK
+#define RED GxEPD_BLACK
+#define WHITE GxEPD_WHITE
+#define GREEN GxEPD_LIGHTGREY
+#define DARKCYAN GxEPD_DARKGREY
+#define LIGHTGREY GxEPD_LIGHTGREY
 
 class Ard_eSPI : public GxEPD2_BW<GxEPD2_310_GDEQ031T10, GxEPD2_310_GDEQ031T10::HEIGHT> {
 public:
@@ -252,6 +247,28 @@ public:
             115200, true, 2, false
         ); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
         setFullWindow();
+        _needsFullRefresh = true;
+    }
+    void drawPixel(int16_t x, int16_t y, uint16_t color) override {
+        GxEPD2_BW<GxEPD2_310_GDEQ031T10, GxEPD2_310_GDEQ031T10::HEIGHT>::drawPixel(
+            x, y, ditherColor(x, y, color)
+        );
+    }
+    void fillScreen(uint16_t color) {
+        _needsFullRefresh = true;
+        if (color == BLACK || color == WHITE) {
+            GxEPD2_BW<GxEPD2_310_GDEQ031T10, GxEPD2_310_GDEQ031T10::HEIGHT>::fillScreen(color);
+            return;
+        }
+
+        for (int16_t py = 0; py < height(); ++py) {
+            for (int16_t px = 0; px < width(); ++px) { drawPixel(px, py, color); }
+        }
+    }
+    void display(bool forceFullRefresh = false) {
+        const bool useFullRefresh = forceFullRefresh || _needsFullRefresh;
+        GxEPD2_BW<GxEPD2_310_GDEQ031T10, GxEPD2_310_GDEQ031T10::HEIGHT>::display(!useFullRefresh);
+        _needsFullRefresh = false;
     }
     inline void drawChar2(int16_t x, int16_t y, char c, int16_t a, int16_t b) {
         drawChar(x, y, c, a, b, textsize_x);
@@ -264,8 +281,30 @@ public:
     inline uint16_t getTextcolor() { return textcolor; };
     inline uint16_t getTextbgcolor() { return textbgcolor; };
 
-    void stopCallback() { setFullWindow(); };
-    void startCallback() {};
+private:
+    bool _needsFullRefresh = true;
+
+    static uint8_t rgb565ToLuma(uint16_t color) {
+        const uint16_t r = ((color >> 11) & 0x1F) * 255U / 31U;
+        const uint16_t g = ((color >> 5) & 0x3F) * 255U / 63U;
+        const uint16_t b = (color & 0x1F) * 255U / 31U;
+        return static_cast<uint8_t>((r * 299U + g * 587U + b * 114U) / 1000U);
+    }
+
+    static uint16_t ditherColor(int16_t x, int16_t y, uint16_t color) {
+        if (color == BLACK || color == WHITE) return color;
+
+        static constexpr uint8_t bayer4x4[4][4] = {
+            {0,  8,  2,  10},
+            {12, 4,  14, 6 },
+            {3,  11, 1,  9 },
+            {15, 7,  13, 5 },
+        };
+
+        const uint8_t luma = rgb565ToLuma(color);
+        const uint8_t threshold = static_cast<uint8_t>(bayer4x4[y & 0x3][x & 0x3] * 16U);
+        return (luma > threshold) ? WHITE : BLACK;
+    }
 };
 
 #elif defined(HEADLESS)
@@ -419,8 +458,6 @@ public:
     };
 // E-Paper finctions
 #if defined(E_PAPER_DISPLAY)
-    void stopCallback() {};
-    void startCallback() {};
     void display(bool a = false) {
         sprite.pushSprite(0, 0);
 #if defined(ARDUINO_M5STACK_PAPER)
@@ -428,7 +465,6 @@ public:
         sprite.createSprite(M5.Display.width(), M5.Display.height());
 #endif
     };
-    void setFullWindow() {};
 #else
     inline void display(bool a = false) {};
 #endif

@@ -340,9 +340,6 @@ String generalKeyboard(
     // main loop
     while (1) {
         if (redraw) {
-#ifdef E_PAPER_DISPLAY
-            tft->stopCallback();
-#endif
             // setup
             tft->setCursor(0, 0);
             tft->setTextColor(getComplementaryColor(BGCOLOR), BGCOLOR);
@@ -495,11 +492,8 @@ String generalKeyboard(
             old_y = y;
             redraw = false;
             tft->display(false);
-#ifdef E_PAPER_DISPLAY
-            tft->startCallback();
-#if defined(USE_M5GFX)
+#if defined(E_PAPER_DISPLAY) && defined(USE_M5GFX)
             M5.Display.setEpdMode(epd_mode_t::epd_fast);
-#endif
 #endif
         }
 
@@ -726,11 +720,8 @@ String generalKeyboard(
                 );
                 tft->setTextSize(_of);
                 tft->display(false);
-#ifdef E_PAPER_DISPLAY
-                tft->startCallback();
-#endif
             }
-#if !defined(T_LORA_PAGER) // T-LoRa-Pager does not have a select button
+#if !defined(T_LORA_PAGER)   // T-LoRa-Pager does not have a select button
             if (check(SelPress)) break;
 #endif
 #endif

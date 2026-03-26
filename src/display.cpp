@@ -163,9 +163,12 @@ void initDisplay(bool doAll) {
 
 #ifdef E_PAPER_DISPLAY // epaper display draws only once
     static bool runOnce = false;
-    if (runOnce) goto END;
-    else runOnce = true;
-    tft->stopCallback();
+    static long lastMillis = 0;
+    if (runOnce && millis() - lastMillis < 5000) goto END;
+    else {
+        runOnce = true;
+        lastMillis = millis();
+    }
 #endif
 
     if (_name == 1) name = "u/bmorcelli";
@@ -237,9 +240,6 @@ void initDisplay(bool doAll) {
     TouchFooter2();
 #endif
     tft->display(false);
-#ifdef E_PAPER_DISPLAY // epaper display draws only once
-    tft->startCallback();
-#endif
 
 END:
     vTaskDelay(50 / portTICK_PERIOD_MS);
@@ -267,9 +267,6 @@ void initDisplayLoop() {
 void displayCurrentVersion(
     String name, String author, String version, String published_at, int versionIndex, JsonArray versions
 ) {
-#ifdef E_PAPER_DISPLAY
-    tft->stopCallback();
-#endif
     // tft->fillScreen(BGCOLOR);
     tft->fillRect(0, tftHeight - 5, tftWidth, 5, BGCOLOR);
     tft->drawRoundRect(5, 5, tftWidth - 10, tftHeight - 10, 5, FGCOLOR);
@@ -322,9 +319,6 @@ void displayCurrentVersion(
     tft->fillRect((tftWidth * versionIndex) / div, tftHeight - 5, bar, 5, ALCOLOR);
 
     tft->display(false);
-#ifdef E_PAPER_DISPLAY
-    tft->startCallback();
-#endif
 }
 
 /***************************************************************************************
@@ -380,9 +374,8 @@ void displayRedStripe(String text, uint16_t fgcolor, uint16_t bgcolor) {
 ** Dependencia: prog_handler =>>    0 - Flash, 1 - SPIFFS
 ***************************************************************************************/
 void progressHandler(size_t progress, size_t total) {
-#if defined(E_PAPER_DISPLAY) && (defined(GxEPD2_DISPLAY) || defined(USE_M5GFX))
+#if defined(E_PAPER_DISPLAY)
     static unsigned long lastUpdate = 0;
-    tft->setFullWindow();
 #endif
     double fraction = (double)progress / (double)total;
     double barWidthFloat = (tftWidth - 40) * fraction;
@@ -416,7 +409,7 @@ void progressHandler(size_t progress, size_t total) {
     else tft->fillRect(20, tftHeight - 45, barWidth, 13, FGCOLOR);
 
 #if defined(E_PAPER_DISPLAY) && (defined(GxEPD2_DISPLAY) || defined(USE_M5GFX))
-    if (millis() - lastUpdate > 3000) {
+    if (millis() - lastUpdate > 2000) {
         tft->display();
         lastUpdate = millis();
     }
@@ -440,16 +433,12 @@ Opt_Coord drawOptions(
     int index = idx;
     uint16_t alcolor = ALCOLOR;
 #ifdef E_PAPER_DISPLAY
-    tft->stopCallback();
-#ifdef USE_M5GFX
-    bgcolor = WHITE;
-    alcolor = BLACK;
-    fgcolor = BLACK;
-#else
-    bgcolor = BLACK;
-    alcolor = WHITE;
-    fgcolor = WHITE;
+#ifdef USE_EPD_PAINTER
+    if (!border) { tft->fillScreen(BGCOLOR); }
 #endif
+    bgcolor = WHITE; // 0xffff
+    alcolor = BLACK; // 0x0000
+    fgcolor = BLACK;
 #endif
 
     Opt_Coord coord;
@@ -463,11 +452,7 @@ Opt_Coord drawOptions(
     if (index < 0) index = 0;
     if (index >= arraySize) index = arraySize - 1;
 
-#ifdef E_PAPER_DISPLAY
-    int lineHeight = FM * (LH + 3);
-#else
     int lineHeight = FM * LH;
-#endif
     const int rowSpacing = 4;
     const int paddingTop = 4;
     const int paddingBottom = 4;
@@ -641,11 +626,7 @@ Opt_Coord drawOptions(
         uint16_t color = opt[optionIndex].color;
         if (color == NO_COLOR) color = fgcolor;
 #ifdef E_PAPER_DISPLAY
-#ifdef USE_M5GFX
         color = BLACK;
-#else
-        color = WHITE;
-#endif
 #endif
 
         int labelX = cursorX;
@@ -690,10 +671,6 @@ Opt_Coord drawOptions(
         }
     }
     tft->display(false);
-#ifdef E_PAPER_DISPLAY
-    tft->startCallback();
-    vTaskDelay(pdTICKS_TO_MS(200));
-#endif
 
     return coord;
 }
@@ -702,10 +679,7 @@ Opt_Coord drawOptions(
 ** Description:   Função para desenhar e mostrar o menu principal
 ***************************************************************************************/
 void drawMainMenu(std::vector<MenuOptions> &opt, int index) {
-#ifdef E_PAPER_DISPLAY
-    tft->stopCallback();
-    tft->setFullWindow();
-#endif
+
     uint8_t size = opt.size();
     if (size < 1) {
         displayRedStripe("No options available");
@@ -779,9 +753,6 @@ void drawMainMenu(std::vector<MenuOptions> &opt, int index) {
     int bat = getBattery();
     if (bat > 0) drawBatteryStatus(bat);
     tft->display(false);
-#ifdef E_PAPER_DISPLAY
-    tft->startCallback();
-#endif
 }
 void drawDeviceBorder() {
     tft->drawRoundRect(5, 5, tftWidth - 10, tftHeight - 10, 5, FGCOLOR);
@@ -993,9 +964,6 @@ void loopVersions(String _fid) {
             );
             redraw = false;
             tft->display(false);
-#ifdef E_PAPER_DISPLAY
-            vTaskDelay(pdTICKS_TO_MS(200));
-#endif
         }
         /* DW Btn to next item */
         if (check(NextPress)) {

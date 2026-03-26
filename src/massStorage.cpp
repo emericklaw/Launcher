@@ -5,19 +5,19 @@
 #ifdef SOC_USB_OTG_SUPPORTED
 #include "esp_private/usb_phy.h"
 #include "tusb.h"
-#include <cstring>
 #include <algorithm>
+#include <cstring>
 #if CONFIG_IDF_TARGET_ESP32P4
 #include "esp_private/periph_ctrl.h"
-#include "soc/lp_system_struct.h"
-#include "soc/usb_wrap_struct.h"
 #include "hal/usb_serial_jtag_ll.h"
 #include "hal/usb_wrap_ll.h"
+#include "soc/lp_system_struct.h"
+#include "soc/usb_wrap_struct.h"
 #elif CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3
+#include "hal/clk_gate_ll.h"
 #include "soc/periph_defs.h"
 #include "soc/rtc_cntl_reg.h"
 #include "soc/usb_wrap_struct.h"
-#include "hal/clk_gate_ll.h"
 #endif
 
 bool MassStorage::shouldStop = false;
@@ -51,7 +51,9 @@ constexpr tusb_desc_device_t kDeviceDescriptor = {
 };
 
 constexpr uint8_t kConfigDescriptor[] = {
-    TUD_CONFIG_DESCRIPTOR(1, 1, 0, TUD_CONFIG_DESC_LEN + TUD_MSC_DESC_LEN, TUSB_DESC_CONFIG_ATT_SELF_POWERED, 500),
+    TUD_CONFIG_DESCRIPTOR(
+        1, 1, 0, TUD_CONFIG_DESC_LEN + TUD_MSC_DESC_LEN, TUSB_DESC_CONFIG_ATT_SELF_POWERED, 500
+    ),
     TUD_MSC_DESCRIPTOR(kUsbItfMsc, 4, kUsbEpOut, kUsbEpIn, kUsbEpSize),
 };
 
@@ -65,9 +67,7 @@ const char *kUsbStrings[] = {
 
 void resetUsbDevicePeripheral() {
 #if CONFIG_IDF_TARGET_ESP32P4
-    PERIPH_RCC_ATOMIC() {
-        _usb_wrap_ll_reset_register();
-    }
+    PERIPH_RCC_ATOMIC() { _usb_wrap_ll_reset_register(); }
 #elif CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3
     REG_CLR_BIT(RTC_CNTL_USB_CONF_REG, RTC_CNTL_IO_MUX_RESET_DISABLE);
     REG_CLR_BIT(RTC_CNTL_USB_CONF_REG, RTC_CNTL_USB_RESET_DISABLE);
@@ -91,9 +91,7 @@ void usbDeviceTask(void *param) {
 
 void restoreUsbSerial() {
 #if CONFIG_IDF_TARGET_ESP32P4
-    PERIPH_RCC_ATOMIC() {
-        _usb_wrap_ll_enable_bus_clock(false);
-    }
+    PERIPH_RCC_ATOMIC() { _usb_wrap_ll_enable_bus_clock(false); }
     usb_wrap_ll_phy_enable_pad(&USB_WRAP, false);
     PERIPH_RCC_ATOMIC() {
         _usb_serial_jtag_ll_enable_bus_clock(true);
@@ -101,7 +99,7 @@ void restoreUsbSerial() {
     }
     usb_serial_jtag_ll_phy_set_defaults();
     LP_SYS.usb_ctrl.sw_hw_usb_phy_sel = 1;
-    LP_SYS.usb_ctrl.sw_usb_phy_sel = 0;  // USB_SERIAL_JTAG -> FSLS PHY0 (Tab5 USB-C)
+    LP_SYS.usb_ctrl.sw_usb_phy_sel = 0; // USB_SERIAL_JTAG -> FSLS PHY0 (Tab5 USB-C)
     usb_serial_jtag_ll_phy_enable_pad(true);
     vTaskDelay(pdMS_TO_TICKS(50));
 #endif
@@ -163,7 +161,7 @@ void endUsbRaw() {
     s_usbStarted = false;
     restoreUsbSerial();
 }
-}  // namespace
+} // namespace
 
 extern "C" uint8_t const *tud_descriptor_device_cb(void) {
     return reinterpret_cast<uint8_t const *>(&kDeviceDescriptor);
@@ -193,11 +191,10 @@ extern "C" uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t lang
     return desc;
 }
 
-extern "C" uint8_t tud_msc_get_maxlun_cb(void) {
-    return 0;
-}
+extern "C" uint8_t tud_msc_get_maxlun_cb(void) { return 0; }
 
-extern "C" void tud_msc_inquiry_cb(uint8_t lun, uint8_t vendor_id[8], uint8_t product_id[16], uint8_t product_rev[4]) {
+extern "C" void
+tud_msc_inquiry_cb(uint8_t lun, uint8_t vendor_id[8], uint8_t product_id[16], uint8_t product_rev[4]) {
     (void)lun;
     std::memset(vendor_id, ' ', 8);
     std::memset(product_id, ' ', 16);
@@ -223,12 +220,14 @@ extern "C" bool tud_msc_start_stop_cb(uint8_t lun, uint8_t power_condition, bool
     return usbStartStopCallback(power_condition, start, load_eject);
 }
 
-extern "C" int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void *buffer, uint32_t bufsize) {
+extern "C" int32_t
+tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void *buffer, uint32_t bufsize) {
     (void)lun;
     return usbReadCallback(lba, offset, buffer, bufsize);
 }
 
-extern "C" int32_t tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t *buffer, uint32_t bufsize) {
+extern "C" int32_t
+tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t *buffer, uint32_t bufsize) {
     (void)lun;
     return usbWriteCallback(lba, offset, buffer, bufsize);
 }
@@ -244,13 +243,10 @@ extern "C" int32_t tud_msc_scsi_cb(uint8_t lun, uint8_t const scsi_cmd[16], void
     (void)bufsize;
     switch (scsi_cmd[0]) {
         case SCSI_CMD_PREVENT_ALLOW_MEDIUM_REMOVAL: return 0;
-        case 0x35: return 0;  // SYNCHRONIZE CACHE (10)
-        default:
-            tud_msc_set_sense(lun, SCSI_SENSE_ILLEGAL_REQUEST, 0x20, 0x00);
-            return -1;
+        case 0x35: return 0; // SYNCHRONIZE CACHE (10)
+        default: tud_msc_set_sense(lun, SCSI_SENSE_ILLEGAL_REQUEST, 0x20, 0x00); return -1;
     }
 }
-
 
 MassStorage::MassStorage() { setup(); }
 
@@ -284,7 +280,7 @@ void MassStorage::beginUsb() {
 #if CONFIG_IDF_TARGET_ESP32P4
     usb_serial_jtag_ll_phy_enable_pad(false);
     LP_SYS.usb_ctrl.sw_hw_usb_phy_sel = 1;
-    LP_SYS.usb_ctrl.sw_usb_phy_sel = 1;  // USB_WRAP -> FSLS PHY0 (GPIO24/25 on Tab5 USB-C)
+    LP_SYS.usb_ctrl.sw_usb_phy_sel = 1; // USB_WRAP -> FSLS PHY0 (GPIO24/25 on Tab5 USB-C)
     usb_wrap_ll_phy_set_defaults(&USB_WRAP);
     usb_wrap_ll_phy_enable_pad(&USB_WRAP, true);
     usb_wrap_ll_phy_set_pullup_strength(&USB_WRAP, true);
@@ -339,9 +335,6 @@ bool usbStartStopCallback(uint8_t power_condition, bool start, bool load_eject) 
 }
 
 void drawUSBStickIcon(bool plugged) {
-#ifdef E_PAPER_DISPLAY
-    tft->stopCallback();
-#endif
     MassStorage::displayMessage("");
 
     float scale;
@@ -388,9 +381,6 @@ void drawUSBStickIcon(bool plugged) {
     tft->fillRoundRect(ledX, ledY, ledW, ledH, radius, plugged ? GREEN : RED);
 
     tft->display(false);
-#ifdef E_PAPER_DISPLAY
-    tft->startCallback();
-#endif
 }
 
 #endif // ARDUINO_USB_MODE

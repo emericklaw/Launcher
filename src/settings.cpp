@@ -172,7 +172,7 @@ void settings_menu() {
                                gsetAskSpiffs(true, true);
                                saveConfigs();
                            }});
-#if !defined(E_PAPER_DISPLAY) || defined(USE_M5GFX)
+#if !defined(LYLYGO_TDECK_PRO)
     options.push_back({"Orientation", [=]() {
                            gsetRotation(true);
                            saveConfigs();
@@ -202,7 +202,8 @@ void settings_menu() {
     if (dev_mode) options.push_back({"Deactivate Dev", [=]() { dev_mode = false; }});
     options.push_back({"Restart", [=]() { FREE_TFT reboot(); }});
 #if defined(STICK_C_PLUS2) || defined(T_EMBED) || defined(STICK_C_PLUS) || defined(T_LORA_PAGER) ||          \
-    defined(LYLYGO_T5S3_PRO)
+    defined(LYLYGO_T5S3_PRO) || defined(ARDUINO_M5STACK_PAPERS3) || defined(ARDUINO_M5STACK_PAPER) ||        \
+    defined(LYLYGO_TDECK_PRO)
     options.push_back({"Turn-off", [=]() { powerOff(); }});
 #endif
 

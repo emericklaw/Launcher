@@ -67,7 +67,13 @@ void InputHandler(void) {
 ** location: mykeyboard.cpp
 ** Turns off the device (or try to)
 **********************************************************************/
-void powerOff() { M5.Power.powerOff(); }
+void powerOff() {
+    tft->fillScreen(BGCOLOR);
+    initDisplay(true);
+    delay(1000);
+    M5.Power.powerOff();
+    while (1) delay(100);
+}
 
 /*********************************************************************
 ** Function: checkReboot
