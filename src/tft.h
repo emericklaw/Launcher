@@ -1,8 +1,11 @@
 #ifndef __TFT_H
 #define __TFT_H
 #if defined(USE_EPD_PAINTER)
-#include <EPD_Painter_Adafruit.h>
+#define EPD_PAINTER_ENABLE_AUTO_SHUTDOWN 0
 #include <EPD_Painter_presets.h>
+
+#include <EPD_Painter_Adafruit.h>
+
 #include <LittleFS.h>
 
 #define BLACK 0x0000
@@ -28,6 +31,7 @@ public:
         _textcolor = BLACK;
         _textbgcolor = WHITE;
         bool r = EPD_PainterAdafruit::begin();
+        EPD_PainterAdafruit::setQuality(EPD_Painter::Quality::QUALITY_HIGH);
         EPD_PainterAdafruit::clear();
         EPD_PainterAdafruit::clear();
         return r;

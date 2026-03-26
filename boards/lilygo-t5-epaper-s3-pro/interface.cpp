@@ -129,10 +129,6 @@ void _setup_gpio() {
     // CS pins of SPI devices to HIGH
     pinMode(46, OUTPUT); // LORA module
     digitalWrite(46, HIGH);
-
-    // Assuming that the previous touch was in sleep state, wake it up
-    pinMode(TOUCH_INT, OUTPUT);
-    digitalWrite(TOUCH_INT, HIGH);
 }
 
 /***************************************************************************************
@@ -143,17 +139,19 @@ void _setup_gpio() {
 #define TFT_BRIGHT_CHANNEL 0
 #define TFT_BRIGHT_Bits 8
 #define TFT_BRIGHT_FREQ 5000
-#define TFT_BL 40
 void _post_setup_gpio() {
     uint8_t touchAddress = 0x5D; // GT911 default I2C address
     EPD_Painter::Config cfg = tft->getConfig();
     if (cfg.i2c.sda == 6) startPeripherals(touchAddress, 41, 15);
-    else startPeripherals(touchAddress, 9, 3);
+    else {
+        isH752_1 = true;
+        startPeripherals(touchAddress, 9, 3);
+    }
 
     // Brightness control must be initialized after tft in this case @Pirata
-    pinMode(TFT_BL, OUTPUT);
-    ledcAttach(TFT_BL, TFT_BRIGHT_FREQ, TFT_BRIGHT_Bits);
-    ledcWrite(TFT_BL, 125);
+    pinMode(isH752_1 ? 11 : 40, OUTPUT);
+    ledcAttach(isH752_1 ? 11 : 40, TFT_BRIGHT_FREQ, TFT_BRIGHT_Bits);
+    ledcWrite(isH752_1 ? 11 : 40, 125);
 }
 
 /***************************************************************************************
@@ -183,11 +181,11 @@ void _setBrightness(uint8_t brightval) {
     else dutyCycle = ((brightval * 255) / 100);
 
     log_i("dutyCycle for bright 0-255: %d", dutyCycle);
-    if (!ledcWrite(TFT_BL, dutyCycle)) {
+    if (!ledcWrite(isH752_1 ? 11 : 40, dutyCycle)) {
         Serial.println("Failed to set brightness");
-        ledcDetach(TFT_BL);
-        ledcAttach(TFT_BL, TFT_BRIGHT_FREQ, TFT_BRIGHT_Bits);
-        ledcWrite(TFT_BL, dutyCycle);
+        ledcDetach(isH752_1 ? 11 : 40);
+        ledcAttach(isH752_1 ? 11 : 40, TFT_BRIGHT_FREQ, TFT_BRIGHT_Bits);
+        ledcWrite(isH752_1 ? 11 : 40, dutyCycle);
     }
 }
 
