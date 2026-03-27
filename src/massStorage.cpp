@@ -37,9 +37,9 @@ constexpr tusb_desc_device_t kDeviceDescriptor = {
     sizeof(tusb_desc_device_t),
     TUSB_DESC_DEVICE,
     0x0200,
-    TUSB_CLASS_MSC,
-    MSC_SUBCLASS_SCSI,
-    MSC_PROTOCOL_BOT,
+    0x00,              // bDeviceClass    - defined at interface level (fixes macOS MSC enumeration)
+    0x00,              // bDeviceSubClass - defined at interface level
+    0x00,              // bDeviceProtocol - defined at interface level
     CFG_TUD_ENDOINT0_SIZE,
     0x303A,
     0x1001,
