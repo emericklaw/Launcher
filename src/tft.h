@@ -6,7 +6,10 @@
 
 #include <EPD_Painter_Adafruit.h>
 
+#include <Arduino.h>
 #include <LittleFS.h>
+
+extern TaskHandle_t xHandle;
 
 #define BLACK 0x0000
 #define WHITE 0xFFFF
@@ -39,8 +42,9 @@ public:
 
     inline void display(bool a = false) {
         (void)a;
+        if (xHandle != nullptr) vTaskSuspend(xHandle);
         paint();
-        paint();
+        if (xHandle != nullptr) vTaskResume(xHandle);
     }
 
     inline int getTextsize() { return _textsize; }
