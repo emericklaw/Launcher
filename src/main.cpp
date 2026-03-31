@@ -44,12 +44,10 @@ uint16_t BGCOLOR = BLACK;
 uint16_t odd_color = 0x30c5;
 uint16_t even_color = 0x32e5;
 
-#if defined(HEADLESS)
-uint8_t _miso = 0;
-uint8_t _mosi = 0;
-uint8_t _sck = 0;
-uint8_t _cs = 0;
-#endif
+int8_t _miso = SDCARD_MISO;
+int8_t _mosi = SDCARD_MOSI;
+int8_t _sck = SDCARD_SCK;
+int8_t _cs = SDCARD_CS;
 
 // Navigation Variables
 long LongPressTmp = 0;
@@ -329,13 +327,15 @@ void setup() {
         esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
     uint8_t firstByte;
     esp_partition_read(ota_partition, 0, &firstByte, 1);
+
+    // Init post setup GPIO before SD Card initializes
+    _post_setup_gpio();
+
     // Gets the config.conf from SD Card and fill out the settings JSON
     getConfigs();
 #if defined(HAS_TOUCH)
     TouchFooter2();
 #endif
-
-    _post_setup_gpio();
 
     // This task keeps running all the time, will never stop
     xTaskCreate(

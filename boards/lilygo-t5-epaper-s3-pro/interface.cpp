@@ -145,6 +145,10 @@ void _post_setup_gpio() {
     if (cfg.i2c.sda == 6) startPeripherals(touchAddress, 41, 15);
     else {
         isH752_1 = true;
+        _cs = 12;
+        _miso = 21;
+        _mosi = 13;
+        _sck = 14;
         startPeripherals(touchAddress, 9, 3);
     }
 
@@ -161,7 +165,7 @@ void _post_setup_gpio() {
 ***************************************************************************************/
 int getBattery() {
     int percent = 0;
-    // percent = bq.getChargePcnt();
+    percent = bq.getChargePcnt();
 
     return (percent < 0) ? 0 : (percent >= 100) ? 100 : percent;
 }

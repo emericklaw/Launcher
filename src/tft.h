@@ -3,7 +3,7 @@
 #if defined(USE_EPD_PAINTER)
 #define EPD_PAINTER_ENABLE_AUTO_SHUTDOWN 0
 // #define EPD_PAINTER_PRESET_LILYGO_T5_S3_H752
-#define EPD_PAINTER_PRESET_LILYGO_T5_S3_GPS
+// #define EPD_PAINTER_PRESET_LILYGO_T5_S3_GPS
 #include <EPD_Painter_presets.h>
 
 #include <EPD_Painter_Adafruit.h>

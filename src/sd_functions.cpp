@@ -11,8 +11,6 @@ SPIClass sdcardSPI;
 String fileToCopy;
 String fileToUse;
 
-static constexpr uint32_t kSdSpiFrequency = 25000000;
-
 #ifndef PART_04MB
 /***************************************************************************************
 ** Function name: eraseFAT
@@ -58,7 +56,7 @@ bool setupSdCard() {
 #if !defined(SDM_SD)                    // fot Lilygo T-Display S3 with lilygo shield
     if (!SD_MMC.begin("/sdcard", true)) // One bit mode
 #elif (TFT_MOSI == SDCARD_MOSI)
-    if (!SDM.begin(SDCARD_CS)) // https://github.com/Bodmer/TFT_eSPI/discussions/2420
+    if (!SDM.begin(_cs)) // https://github.com/Bodmer/TFT_eSPI/discussions/2420
 #elif defined(HEADLESS)
     if (_sck == 0 && _miso == 0 && _mosi == 0 && _cs == 0) {
         Serial.println("SdCard pins not set");
@@ -67,19 +65,19 @@ bool setupSdCard() {
 
     sdcardSPI.begin(_sck, _miso, _mosi, _cs); // start SPI communications
     vTaskDelay(pdTICKS_TO_MS(10));
-    if (!SDM.begin(_cs, sdcardSPI, kSdSpiFrequency))
+    if (!SDM.begin(_cs, sdcardSPI))
 #elif defined(DONT_USE_INPUT_TASK)
 #if (TFT_MOSI != SDCARD_MOSI)
-    sdcardSPI.begin(SDCARD_SCK, SDCARD_MISO, SDCARD_MOSI, SDCARD_CS); // start SPI communications
-    if (!SDM.begin(SDCARD_CS, sdcardSPI, kSdSpiFrequency))
+    sdcardSPI.begin(_sck, _miso, _mosi, _cs); // start SPI communications
+    if (!SDM.begin(_cs, sdcardSPI))
 #else
-    if (!SDM.begin(SDCARD_CS))
+    if (!SDM.begin(_cs))
 #endif
 
 #else
-    sdcardSPI.begin(SDCARD_SCK, SDCARD_MISO, SDCARD_MOSI, SDCARD_CS); // start SPI communications
+    sdcardSPI.begin(_sck, _miso, _mosi, _cs); // start SPI communications
     vTaskDelay(pdTICKS_TO_MS(10));
-    if (!SDM.begin(SDCARD_CS, sdcardSPI, kSdSpiFrequency))
+    if (!SDM.begin(_cs, sdcardSPI))
 #endif
     {
         // sdcardSPI.end(); // Closes SPI connections and release pin header.

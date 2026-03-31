@@ -228,11 +228,9 @@ extern bool askSpiffs;
 // size o the file in the webInterface
 extern size_t file_size;
 
-#if defined(HEADLESS)
-extern uint8_t _miso;
-extern uint8_t _mosi;
-extern uint8_t _sck;
-extern uint8_t _cs;
-#endif
+extern int8_t _miso;
+extern int8_t _mosi;
+extern int8_t _sck;
+extern int8_t _cs;
 
 #endif
