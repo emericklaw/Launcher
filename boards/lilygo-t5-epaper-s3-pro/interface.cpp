@@ -151,7 +151,7 @@ void _post_setup_gpio() {
     // Brightness control must be initialized after tft in this case @Pirata
     pinMode(isH752_1 ? 11 : 40, OUTPUT);
     ledcAttach(isH752_1 ? 11 : 40, TFT_BRIGHT_FREQ, TFT_BRIGHT_Bits);
-    ledcWrite(isH752_1 ? 11 : 40, 125);
+    ledcWrite(isH752_1 ? 11 : 40, bright);
 }
 
 /***************************************************************************************
@@ -161,7 +161,7 @@ void _post_setup_gpio() {
 ***************************************************************************************/
 int getBattery() {
     int percent = 0;
-    percent = bq.getChargePcnt();
+    // percent = bq.getChargePcnt();
 
     return (percent < 0) ? 0 : (percent >= 100) ? 100 : percent;
 }
@@ -180,7 +180,7 @@ void _setBrightness(uint8_t brightval) {
     else if (brightval == 0) dutyCycle = 0;
     else dutyCycle = ((brightval * 255) / 100);
 
-    log_i("dutyCycle for bright 0-255: %d", dutyCycle);
+    // log_i("dutyCycle for bright 0-255: %d", dutyCycle);
     if (!ledcWrite(isH752_1 ? 11 : 40, dutyCycle)) {
         Serial.println("Failed to set brightness");
         ledcDetach(isH752_1 ? 11 : 40);
@@ -199,7 +199,7 @@ struct TouchPointPro {
 ** Handles the variables PrevPress, NextPress, SelPress, AnyKeyPress and EscPress
 **********************************************************************/
 void InputHandler(void) {
-    static long _tmptmp;
+    static unsigned long _tmptmp = 0;
     TouchPointPro t;
     uint8_t touched = 0;
     uint8_t rot = 5;
@@ -227,18 +227,18 @@ void InputHandler(void) {
         rot = rotation;
     }
     touched = touch.getPoint(&t.x, &t.y);
-    if ((millis() - _tmptmp) > 150 || LongPress) { // one reading each 500ms
+    if ((millis() - _tmptmp) > 250 || LongPress) { // one reading each 500ms
 
         // Serial.printf("\nPressed x=%d , y=%d, rot: %d",t.x, t.y, rotation);
         if (touched) {
 
-            Serial.printf(
-                "\nPressed x=%d , y=%d, rot: %d, millis=%d, tmp=%d", t.x, t.y, rotation, millis(), _tmptmp
-            );
+            // Serial.printf(
+            //     "\nPressed x=%d , y=%d, rot: %d, millis=%d, tmp=%d", t.x, t.y, rotation, millis(), _tmptmp
+            // );
             _tmptmp = millis();
 
-            // if(!wakeUpScreen()) AnyKeyPress = true;
-            // else goto END;
+            if (!wakeUpScreen()) AnyKeyPress = true;
+            else return;
 
             // Touch point global variable
             touchPoint.x = t.x;
@@ -247,8 +247,6 @@ void InputHandler(void) {
             touchHeatMap(touchPoint);
             touched = 0;
         }
-    END:
-        yield();
     }
 }
 

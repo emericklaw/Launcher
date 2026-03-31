@@ -39,7 +39,7 @@ void _post_setup_gpio() {
     // Brightness control must be initialized after tft in this case @Pirata
     pinMode(TFT_BL, OUTPUT);
     ledcAttach(TFT_BL, TFT_BRIGHT_FREQ, TFT_BRIGHT_Bits);
-    ledcWrite(TFT_BL, 255);
+    ledcWrite(TFT_BL, bright);
     esp_err_t err = ESP_OK;
     uint16_t calData[5];
     auto nvsHandle = openNamespace("calData", NVS_READWRITE, err);

@@ -2,12 +2,13 @@
 #define __TFT_H
 #if defined(USE_EPD_PAINTER)
 #define EPD_PAINTER_ENABLE_AUTO_SHUTDOWN 0
+// #define EPD_PAINTER_PRESET_LILYGO_T5_S3_H752
+#define EPD_PAINTER_PRESET_LILYGO_T5_S3_GPS
 #include <EPD_Painter_presets.h>
 
 #include <EPD_Painter_Adafruit.h>
 
 #include <Arduino.h>
-#include <LittleFS.h>
 
 extern TaskHandle_t xHandle;
 
@@ -29,7 +30,6 @@ public:
           ) {}
 
     inline bool begin() {
-        LittleFS.begin(true);
         _textsize = 1;
         _textcolor = BLACK;
         _textbgcolor = WHITE;
@@ -68,7 +68,9 @@ public:
     }
 
     inline void fillScreen(uint16_t c) {
-        EPD_PainterAdafruit::clear();
+        if (xHandle != nullptr) vTaskSuspend(xHandle);
+        clear();
+        if (xHandle != nullptr) vTaskResume(xHandle);
         EPD_PainterAdafruit::fillScreen(mapColor(c));
     }
     inline void fillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c) {
@@ -145,14 +147,10 @@ private:
     uint16_t _textbgcolor = WHITE;
 
     static uint8_t mapColor(uint16_t color) {
-        const uint8_t r = ((color >> 11) & 0x1F) * 255 / 31;
-        const uint8_t g = ((color >> 5) & 0x3F) * 255 / 63;
-        const uint8_t b = (color & 0x1F) * 255 / 31;
-        const uint16_t luma = static_cast<uint16_t>((r * 299U + g * 587U + b * 114U) / 1000U);
-
-        if (luma >= 192) return 0;
-        if (luma >= 128) return 1;
-        if (luma >= 64) return 2;
+        const uint16_t factor = 0xFFFF / 4;
+        if (color > factor * 3) return 0;
+        if (color > factor * 2) return 1;
+        if (color > factor * 1) return 2;
         return 3;
     }
 };

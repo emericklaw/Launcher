@@ -52,7 +52,7 @@ void _setup_gpio() {
 void _post_setup_gpio() {
     // PWM backlight setup
     ledcAttach(GFX_BL, TFT_BRIGHT_FREQ, TFT_BRIGHT_Bits);
-    ledcWrite(GFX_BL, 0);
+    ledcWrite(GFX_BL, bright);
 }
 
 /***************************************************************************************

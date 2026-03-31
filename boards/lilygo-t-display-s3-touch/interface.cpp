@@ -92,7 +92,7 @@ void _setup_gpio() {
 void _post_setup_gpio() {
     // PWM backlight setup
     ledcAttach(TFT_BL, TFT_BRIGHT_FREQ, TFT_BRIGHT_Bits);
-    ledcWrite(TFT_BL, 250);
+    ledcWrite(TFT_BL, bright);
 
     Serial.println("Prepraring Touchscreen");
     touch.setPins(21, 16);

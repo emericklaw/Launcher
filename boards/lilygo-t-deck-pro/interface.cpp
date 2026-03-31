@@ -172,6 +172,11 @@ void _post_setup_gpio() {
     keyboard->matrix(KEYPAD_ROWS, KEYPAD_COLS);
     // flush the internal buffer
     keyboard->flush();
+
+    // Brightness control must be initialized after tft in this case @Pirata
+    pinMode(TFT_BL, OUTPUT);
+    ledcAttach(TFT_BL, TFT_BRIGHT_FREQ, TFT_BRIGHT_Bits);
+    ledcWrite(TFT_BL, bright);
 }
 
 /***************************************************************************************
