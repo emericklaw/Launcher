@@ -7,11 +7,11 @@
 ** Description:   initial setup for the device
 ***************************************************************************************/
 void _setup_gpio() {
-    pinMode(UP_BTN, INPUT); // Sets the power btn as an INPUT
-    pinMode(SEL_BTN, INPUT);
-    pinMode(DW_BTN, INPUT);
-    pinMode(R_BTN, INPUT);
-    pinMode(L_BTN, INPUT);
+    pinMode(UP_BTN, INPUT_PULLUP); // Sets the power btn as an INPUT
+    pinMode(SEL_BTN, INPUT_PULLUP);
+    pinMode(DW_BTN, INPUT_PULLUP);
+    pinMode(R_BTN, INPUT_PULLUP);
+    pinMode(L_BTN, INPUT_PULLUP);
 }
 /***************************************************************************************
 ** Function name: _post_setup_gpio()

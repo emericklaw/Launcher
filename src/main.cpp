@@ -265,17 +265,10 @@ void setup() {
 
 // Setup GPIOs and stuff
 #if defined(HEADLESS)
-#if SEL_BTN >= 0 // handle enter in launcher
-    pinMode(SEL_BTN, INPUT);
-#endif
 #if LED > 0
     pinMode(LED, OUTPUT); // Set pin to to recognize if launcher is starting or not, and connectiong or not
     digitalWrite(LED, LED_ON); // keeps on until exit
 #endif
-
-#endif
-#if defined(BACKLIGHT)
-    pinMode(BACKLIGHT, OUTPUT);
 #endif
 
     _setup_gpio();

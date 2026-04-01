@@ -15,7 +15,7 @@ void _setup_gpio() {}
 ***************************************************************************************/
 void _post_setup_gpio() {
     Serial.println("Setting GPIO 0 as Input, press to access the Launcher");
-    pinMode(SEL_BTN, INPUT);
+    pinMode(SEL_BTN, INPUT_PULLUP);
 }
 
 /*********************************************************************

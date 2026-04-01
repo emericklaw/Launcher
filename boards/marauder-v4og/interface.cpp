@@ -19,7 +19,7 @@ IRAM_ATTR void checkPosition() { encoder->tick(); }
 void _setup_gpio() {
     pinMode(TFT_BL, OUTPUT);
 #ifdef WAVESENTRY
-    pinMode(ENCODER_KEY, INPUT);
+    pinMode(ENCODER_KEY, INPUT_PULLUP);
     encoder = new RotaryEncoder(ENCODER_INA, ENCODER_INB, RotaryEncoder::LatchMode::TWO03);
     attachInterrupt(digitalPinToInterrupt(ENCODER_INA), checkPosition, CHANGE);
     attachInterrupt(digitalPinToInterrupt(ENCODER_INB), checkPosition, CHANGE);
