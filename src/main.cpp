@@ -238,7 +238,10 @@ void _post_setup_gpio() {}
 **  Where the devices are started and variables set
 *********************************************************************/
 void setup() {
+    Serial.begin(115200);
     nvs_flash_init();
+    ensureM5StackUiFlowNVSDefaults();
+
 #if CONFIG_IDF_TARGET_ESP32P4
     const esp_partition_t *partition =
         esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
@@ -261,7 +264,6 @@ void setup() {
         nvsHandle->commit();
     }
 #endif
-    Serial.begin(115200);
 
 // Setup GPIOs and stuff
 #if defined(HEADLESS)

@@ -85,11 +85,19 @@ Things that needs to be done in next updates
 
 
 ## Latest Changelog
-* 2.6.8:
+* 2.6.x:
      * [ ] Custom partition builder (no more hardcoded partition lists)
-     * [x] Fix M5Stack Tab5 Wifi scan and WebUI in AP mode
+
+* 2.6.8:
+     * [x] Increased Gamestation Partitions sizes. https://github.com/bmorcelli/Launcher/issues/299
+     * [x] Enhanced NVS partition for UiFlow2
+     * [x] Fix M5Stack Tab5 Wifi scan and WebUI in AP mode.
      * [x] New Device: [Lilygo T-Watch-S3] (https://lilygo.cc/products/t-watch-s3?bg_ref=sDI8Bh4HmO)
      * [x] New Device: [Lilygo T-Watch-Ultra] (https://lilygo.cc/products/t-watch-ultra?bg_ref=sDI8Bh4HmO)
+     * [x] New Device: [Lilygo E-Paper S3 Pro H752-x] (https://lilygo.cc/products/t5-e-paper-s3-pro?bg_ref=sDI8Bh4HmO)
+
+<details>
+  <summary><h2>Older Changelogs</h2></summary>
 
 * 2.6.7:
      * [x] Restablished Tab5 SdCard on SPI for WiFi compatibility and refactored reboot process to powercycle the SDCard, resetting the Sdcard communication bus.
@@ -170,10 +178,6 @@ Things that needs to be done in next updates
 ...
 
 ```
-
-
-<details>
-  <summary><h2>Older Changelogs</h2></summary>
 
 * 2.5.3:
      * [x] Restored T-Deck OTA

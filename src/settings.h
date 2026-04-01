@@ -46,6 +46,7 @@ bool saveIntoNVS();
 bool saveWifiIntoNVS();
 bool getFromNVS();
 bool getWifiFromNVS();
+bool ensureM5StackUiFlowNVSDefaults();
 bool getWifiCredential(const String &ssid, String &password);
 bool setWifiCredential(const String &ssid, const String &password, bool persist = false);
 void setdimmerSet();

@@ -54,6 +54,34 @@ JsonArray ensureWifiListInternal() {
     if (wifiList.isNull()) { log_e("ensureWifiList: failed to create wifi list"); }
     return wifiList;
 }
+
+bool ensureStringKey(nvs::NVSHandle &handle, const char *key, const char *value) {
+    char buffer[64] = {0};
+    esp_err_t err = handle.get_string(key, buffer, sizeof(buffer));
+    if (err == ESP_OK) return false;
+    if (err != ESP_ERR_NVS_NOT_FOUND) {
+        Serial.printf("ensureStringKey(%s) read failed: %d", key, err);
+        return false;
+    }
+
+    err = handle.set_string(key, value);
+    if (err != ESP_OK) { Serial.printf("ensureStringKey(%s) write failed: %d", key, err); }
+    return err == ESP_OK;
+}
+
+bool ensureU8Key(nvs::NVSHandle &handle, const char *key, uint8_t value) {
+    uint8_t current = 0;
+    esp_err_t err = handle.get_item(key, current);
+    if (err == ESP_OK) return false;
+    if (err != ESP_ERR_NVS_NOT_FOUND) {
+        Serial.printf("ensureU8Key(%s) read failed: %d", key, err);
+        return false;
+    }
+
+    err = handle.set_item(key, value);
+    if (err != ESP_OK) { Serial.printf("ensureU8Key(%s) write failed: %d", key, err); }
+    return err == ESP_OK;
+}
 } // namespace
 
 JsonObject ensureSettingsRoot() {
@@ -91,6 +119,49 @@ bool getWifiCredential(const String &searchSsid, String &outPwd) {
     }
 
     return false;
+}
+
+bool ensureM5StackUiFlowNVSDefaults() {
+#if defined(M5STACK) || defined(ARDUINO_M5STACK_TAB5)
+    esp_err_t err = ESP_OK;
+    auto nvsHandle = openNamespace("uiflow", NVS_READWRITE, err);
+    if (!nvsHandle) return false;
+
+    bool changed = false;
+    // https://github.com/m5stack/uiflow-micropython/blob/master/m5stack/partition_nvs.csv
+
+    changed |= ensureStringKey(*nvsHandle, "server", "uiflow2.m5stack.com");
+    changed |= ensureStringKey(*nvsHandle, "net_mode", "WIFI");
+    changed |= ensureStringKey(*nvsHandle, "protocol", "DHCP");
+    changed |= ensureStringKey(*nvsHandle, "ip_addr", "");
+    changed |= ensureStringKey(*nvsHandle, "netmask", "");
+    changed |= ensureStringKey(*nvsHandle, "gateway", "");
+    changed |= ensureStringKey(*nvsHandle, "dns", "8.8.8.8");
+    changed |= ensureStringKey(*nvsHandle, "ssid0", "");
+    changed |= ensureStringKey(*nvsHandle, "pswd0", "");
+    changed |= ensureStringKey(*nvsHandle, "ssid1", "");
+    changed |= ensureStringKey(*nvsHandle, "pswd1", "");
+    changed |= ensureStringKey(*nvsHandle, "ssid2", "");
+    changed |= ensureStringKey(*nvsHandle, "pswd2", "");
+    changed |= ensureStringKey(*nvsHandle, "sntp0", "ntp.aliyun.com");
+    changed |= ensureStringKey(*nvsHandle, "sntp1", "jp.pool.ntp.org");
+    changed |= ensureStringKey(*nvsHandle, "sntp2", "pool.ntp.org");
+    changed |= ensureStringKey(*nvsHandle, "tz", "GMT0");
+    changed |= ensureU8Key(*nvsHandle, "boot_option", 1);
+
+    if (changed) {
+        err = nvsHandle->commit();
+        if (err != ESP_OK) {
+            Serial.printf("ensureM5StackUiFlowNVSDefaults: commit failed: %d", err);
+            return false;
+        }
+        Serial.printf("ensureM5StackUiFlowNVSDefaults: default UiFlow keys created");
+    }
+
+    return true;
+#else
+    return true;
+#endif
 }
 
 bool setWifiCredential(const String &ssidValue, const String &passwordValue, bool persist) {

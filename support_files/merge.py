@@ -25,7 +25,6 @@ boot_offset = BOOT_OFFSETS.get(mcu, 0x0000)   # safe fallback
 
 # Default offsets (adjust if your partitions.csv uses custom addresses)
 PART_TABLE_OFFSET = 0x8000
-NVS_OFFSET = 0x9000
 APP_OFFSET = 0x10000
 
 # Paths
@@ -35,12 +34,10 @@ pioenv = senv.subst("${PIOENV}")
 
 boot_bin = build_dir / "bootloader.bin"
 part_bin = build_dir / "partitions.bin"
-nvs_bin = proj_dir / "support_files/UiFlow2_nvs.bin"
 app_bin  = build_dir / "firmware.bin"
 
 if mcu=="esp32p4":
     APP_OFFSET = 0x20000
-    nvs_bin = proj_dir / "support_files/UiFlow2_nvs_p4.bin"
 
 out_bin = proj_dir / f"Launcher-{pioenv}.bin"
 
@@ -126,14 +123,6 @@ def _merge_bins_callback(target, source, env):
         cmd_parts.extend([
             hex(boot_offset), str(boot_bin),
             hex(PART_TABLE_OFFSET), str(part_bin),
-        ])
-
-    flag_path = Path(env.subst("$PROJECT_DIR")) / ".pio" / "build" / env.subst("${PIOENV}") / "nvs_flag.txt"
-    nvs_flag_present = flag_path.exists()
-    if nvs_flag_present:
-        print("[merge_bin] NVS flag file detected. Including UiFlow2_nvs.bin in the merge...")
-        cmd_parts.extend([
-            hex(NVS_OFFSET), str(nvs_bin),
         ])
 
     cmd_parts.extend([
