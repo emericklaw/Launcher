@@ -157,16 +157,34 @@ void InputHandler(void) {
 
 void powerOff() {
 #ifdef T_EMBED_1101
-    displayRedStripe("Connect to USB to pwr on");
-    delay(3000);
-    for (int i = 3; i > 0; i--) {
-        displayRedStripe("Shutting down in " + String(i));
-        delay(1000);
-    }
-    PPM.shutdown();
-    tft->fillScreen(BLACK);
-    displayRedStripe("Unplug USB to power off");
-    while (true) { delay(100); }
+    options = {
+        {"Deep Sleep",
+         []() {
+             digitalWrite(PIN_POWER_ON, LOW);
+             esp_sleep_enable_ext0_wakeup(GPIO_NUM_6, LOW);
+             esp_deep_sleep_start();
+         }                                           },
+        {"Power Off",
+         []() {
+             displayRedStripe("Connect to USB to pwr on");
+             delay(3000);
+             for (int i = 3; i > 0; i--) {
+                 displayRedStripe("Shutting down in " + String(i));
+                 delay(1000);
+             }
+             PPM.shutdown();
+             tft->fillScreen(BLACK);
+             displayRedStripe("Unplug USB to power off");
+             while (true) delay(100);
+         }                                           },
+        {"Main Menu",  [=]() { returnToMenu = true; }},
+    };
+    loopOptions(options);
+
+#else
+    digitalWrite(PIN_POWER_ON, LOW);
+    esp_sleep_enable_ext0_wakeup(GPIO_NUM_0, LOW);
+    esp_deep_sleep_start();
 #endif
 }
 
@@ -175,6 +193,7 @@ void checkReboot() {
     int countDown;
     /* Long press power off */
     if (digitalRead(BK_BTN) == BTN_ACT) {
+        vTaskSuspend(xHandle);
         uint32_t time_count = millis();
         while (digitalRead(BK_BTN) == BTN_ACT) {
             // Display poweroff bar only if holding button
@@ -186,8 +205,8 @@ void checkReboot() {
                     tft->drawCentreString("DeepSleep in " + String(countDown) + "/3", tftWidth / 2, 12, 1);
                 else {
                     tft->fillScreen(BGCOLOR);
-                    while (digitalRead(BK_BTN) == BTN_ACT);
-                    delay(200);
+                    while (digitalRead(BK_BTN) == BTN_ACT) delay(10);
+                    delay(1000);
                     digitalWrite(PIN_POWER_ON, LOW);
                     esp_sleep_enable_ext0_wakeup(GPIO_NUM_6, LOW);
                     esp_deep_sleep_start();
@@ -195,6 +214,7 @@ void checkReboot() {
                 delay(10);
             }
         }
+        vTaskResume(xHandle);
 
         // Clear text after releasing the button
         delay(30);

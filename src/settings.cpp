@@ -264,6 +264,7 @@ void settings_menu() {
     options.push_back({"Partition Change", [=]() { partitioner(); }});
     options.push_back({"List of Partitions", [=]() { partList(); }});
 #endif
+    options.push_back({"Erase App partition", [=]() { eraseAppPartition(); }});
 
 #ifndef PART_04MB
     options.push_back({"Clear FAT", [=]() { eraseFAT(); }});
@@ -975,6 +976,15 @@ void saveConfigs() {
         if (SDM.remove(CONFIG_FILE)) log_i("config.conf deleted");
         else log_i("fail deleting config.conf");
 
+        File file = SDM.open(CONFIG_FILE, FILE_WRITE, true);
+        if (!file) {
+            log_i("Failed to create file");
+            SDM.end();
+            sdcardMounted = false;
+            break;
+        }
+        log_i("config.conf created");
+
         JsonArray settingsArray = settings.as<JsonArray>();
         if (settingsArray.isNull()) {
             settings.clear();
@@ -1033,13 +1043,6 @@ void saveConfigs() {
         setting["wui_usr"] = wui_usr;
         setting["wui_pwd"] = wui_pwd;
         setting["dwn_path"] = dwn_path;
-
-        File file = SDM.open(CONFIG_FILE, FILE_WRITE, true);
-        if (!file) {
-            log_i("Failed to create file");
-            break;
-        }
-        log_i("config.conf created");
 
         size_t written = serializeJsonPretty(settings, file);
         file.flush();

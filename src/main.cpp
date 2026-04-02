@@ -556,7 +556,9 @@ void loop() {
             pass_by = 0;
             returnToMenu = false;
             redraw = true;
+            break;
         }
+        checkReboot();
     }
 }
 

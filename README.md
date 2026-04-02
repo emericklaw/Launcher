@@ -90,6 +90,7 @@ Things that needs to be done in next updates
 
 * 2.6.8:
      * [x] Increased Gamestation Partitions sizes. https://github.com/bmorcelli/Launcher/issues/299
+     * [x] Added option to erase App Partition
      * [x] Added option to always boot into Launcher https://github.com/bmorcelli/Launcher/issues/292
      * [x] Added "APP" menu item to reboot into the last installed firmware
      * [x] Enhanced NVS partition and partition schemes for UiFlow2

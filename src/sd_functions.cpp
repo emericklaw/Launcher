@@ -12,6 +12,26 @@ SPIClass sdcardSPI;
 String fileToCopy;
 String fileToUse;
 
+/***************************************************************************************
+** Function name: eraseAppPartition
+** Description:   erase OTA_0 app partition
+***************************************************************************************/
+bool eraseAppPartition() {
+    const esp_partition_t *partition =
+        esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
+    if (!partition) {
+        displayRedStripe("OTA partition not found");
+        delay(2000);
+        return false;
+    }
+    displayRedStripe("Erasing, please wait...");
+    esp_flash_erase_region(NULL, partition->address, partition->size);
+
+    lastInstalledApp = "";
+    saveIntoNVS();
+    return true;
+}
+
 #ifndef PART_04MB
 /***************************************************************************************
 ** Function name: eraseFAT
@@ -278,6 +298,8 @@ void readFs(String &folder, std::vector<Option> &opt) {
     if (!root || !root.isDirectory()) {
         displayRedStripe("Fail open root");
         vTaskDelay(2500 / portTICK_PERIOD_MS);
+        SDM.end();
+        sdcardMounted = false;
         return; // Retornar imediatamente se não for possível abrir o diretório
     }
 
