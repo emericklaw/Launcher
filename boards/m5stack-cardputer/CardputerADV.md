@@ -34,12 +34,12 @@ This document details the implementation of M5Stack Cardputer ADV support for th
 | Enter/Select | Enter | Row=4, Col=3 | 0x43 | Primary selection |
 | Escape/Back | Esc | Row=0, Col=1 | 0x01 | Back/Cancel |
 
-### Cardputer ADV Navigation 
+### Cardputer ADV Navigation
 
 | Function | Key |
 |----------|-------------------|
 | **Previous** | `,` (←) or `;` (↑) |
-| **Next** | `.` (→) or `/` (↓) |
+| **Next** | `/` (→) or `.` (↓) |
 | **Select** | Enter or GPIO0 |
 | **Escape** | `` ` `` or Backspace |
 
@@ -206,6 +206,6 @@ pio run -e m5stack-cardputer-adv -t clean
 ---
 
 **Author**: n0xa
-**Date**: September 9, 2025  
-**Status**: Complete and Functional  
+**Date**: September 9, 2025
+**Status**: Complete and Functional
 **Tested**: M5Stack Cardputer ADV and M5Stack Cardputer

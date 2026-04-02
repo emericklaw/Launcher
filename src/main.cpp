@@ -97,6 +97,7 @@ int currentIndex;
 int rotation = ROTATION;
 bool sdcardMounted;
 bool onlyBins;
+bool bootToApp = true;
 bool noDotFiles;
 bool returnToMenu;
 bool update;
@@ -109,6 +110,7 @@ String pwd;
 String wui_usr = "admin";
 String wui_pwd = "launcher";
 String dwn_path = "/downloads/";
+String lastInstalledApp = "";
 uint16_t total_firmware = 0;
 uint8_t current_page = 1;
 uint8_t num_pages = 0;
@@ -163,7 +165,7 @@ void get_partition_sizes() {
         it = esp_partition_next(it);
     }
     esp_partition_iterator_release(it);
-    if (MAX_SPIFFS == 0 && askSpiffs) gsetAskSpiffs(true, false);
+    if (MAX_SPIFFS == 0 && askSpiffs) askSpiffs = false;
 
     // Logar os tamanhos das partições
     ESP_LOGI("Partition Sizes", "MAX_APP: %d", MAX_APP);
@@ -346,8 +348,8 @@ void setup() {
     int i = millis();
     int j = 0;
     LongPress = true;
-    while (millis() < i + 5000) { // increased from 2500 to 5000
-        initDisplay();            // Inicia o display
+    while (millis() < i + (5000 - bootToApp * 3000)) { // increased from 2500 to 5000
+        initDisplay();                                 // Inicia o display
 
         if (millis() > (i + j * 500)) { // Serial message each ~500ms
             Serial.println("Press the button to enter the Launcher!");
@@ -369,6 +371,7 @@ void setup() {
         if (check(AnyKeyPress))
 #endif
         {
+            if (!bootToApp) goto Launcher;
             tft->fillScreen(BLACK);
             FREE_TFT
             reboot();
@@ -378,6 +381,7 @@ void setup() {
     // If nothing is done, check if there are any app installed in the ota partition, if it does, restart
     // device to start installed App.
     if (firstByte == 0xE9) {
+        if (!bootToApp) goto Launcher;
         tft->fillScreen(BLACK);
         FREE_TFT
         reboot();
@@ -458,14 +462,20 @@ void loop() {
 #endif
          [=]() { settings_menu(); }
         }
-    // Add power off option for devices that are not easy to turn off
-    // on e-paper, it keeps the Launcher bootscreen printed
+    };
+
+    if (!lastInstalledApp.isEmpty()) {
+        menuItems.push_back({"APP", lastInstalledApp, [=]() { reboot(); }});
+    }
+
 #if defined(T_EMBED) || defined(STICK_C_PLUS) || defined(T_LORA_PAGER) || defined(LYLYGO_T5S3_PRO) ||        \
     defined(ARDUINO_M5STACK_PAPERS3) || defined(ARDUINO_M5STACK_PAPER) || defined(LYLYGO_TDECK_PRO)
-        ,
+    menuItems.push_back(
+        // Add power off option for devices that are not easy to turn off
+        // on e-paper, it keeps the Launcher bootscreen printed
         {"OFF", "Turn off Device", [=]() { powerOff(); }}
+    );
 #endif
-    };
     opt = menuItems.size(); // number of options in the menu
     update_sd = sdcardMounted;
     while (1) {

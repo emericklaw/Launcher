@@ -13,6 +13,7 @@ config.conf JSON structure
       "noDotFiles":1,
       "bright":100,
       "askSpiffs":1,
+      "bootToApp":1,
       "wui_usr":"admin",
       "wui_pwd":"launcher",
       "dwn_path": "/downloads/",
@@ -36,9 +37,6 @@ void _setBrightness(uint8_t brightval) __attribute__((weak));
 void setBrightnessMenu();
 void setBrightness(int bright, bool save = true);
 void getBrightness();
-bool gsetOnlyBins(bool set = false, bool value = true);
-bool gsetNoDotFiles(bool set = false, bool value = true);
-bool gsetAskSpiffs(bool set = false, bool value = true);
 int gsetRotation(bool set = false);
 void getConfigs();
 void saveConfigs();

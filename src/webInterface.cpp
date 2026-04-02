@@ -267,6 +267,8 @@ void handleUpload(
                     displayRedStripe("Fail 181: " + String(Update.getError()));
                     delay(3000);
                 } else {
+                    lastInstalledApp = "WebUI File";
+                    saveIntoNVS();
                     request->send(200, "text/plain", "OK");
                     displayRedStripe("Restart your device");
                 }

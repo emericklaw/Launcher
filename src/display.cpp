@@ -1044,7 +1044,8 @@ void loopVersions(String _fid) {
                          nb,
                          fat,
                          (uint32_t *)FAT_offset,
-                         (uint32_t *)FAT_size
+                         (uint32_t *)FAT_size,
+                         String(name) + " - " + String(version)
                      );
                  }}
             };

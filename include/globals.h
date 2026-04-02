@@ -191,6 +191,8 @@ extern String wui_pwd;
 
 extern String dwn_path;
 
+extern String lastInstalledApp;
+
 extern int currentIndex;
 
 extern uint16_t total_firmware; // Number of available firmware on the list
@@ -224,6 +226,9 @@ extern bool update;
 
 // Used to choose SPIFFS or not
 extern bool askSpiffs;
+
+// Used to control boot process
+extern bool bootToApp;
 
 // size o the file in the webInterface
 extern size_t file_size;

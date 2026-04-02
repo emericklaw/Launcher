@@ -531,7 +531,8 @@ bool installExtFirmware(String url) {
         nb,
         fat,
         fat_offset,
-        fat_size
+        fat_size,
+        "External OTA"
     );
     return true;
 }
@@ -572,7 +573,7 @@ bool clearOnlineCoredump() {
 ***************************************************************************************/
 void installFirmware( // adicionar "fid"
     String fid, String file, uint32_t app_size, uint32_t app_offset, bool spiffs, uint32_t spiffs_offset, uint32_t spiffs_size, bool nb,
-    bool fat, uint32_t fat_offset[2], uint32_t fat_size[2]
+    bool fat, uint32_t fat_offset[2], uint32_t fat_size[2], String installedName
 ) {
     if (!file.startsWith("https://")) file = M5_SERVER_PATH + file;
     String fileAddr = "https://api.launcherhub.net/download?fid=" + fid + "&file=" + file;
@@ -677,6 +678,10 @@ void installFirmware( // adicionar "fid"
 #endif
 
 Sucesso:
+    if (!installedName.isEmpty()) {
+        lastInstalledApp = installedName;
+        saveIntoNVS();
+    }
     reboot();
 
 // Só chega aqui se der errado

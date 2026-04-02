@@ -90,7 +90,9 @@ Things that needs to be done in next updates
 
 * 2.6.8:
      * [x] Increased Gamestation Partitions sizes. https://github.com/bmorcelli/Launcher/issues/299
-     * [x] Enhanced NVS partition for UiFlow2
+     * [x] Added option to always boot into Launcher https://github.com/bmorcelli/Launcher/issues/292
+     * [x] Added "APP" menu item to reboot into the last installed firmware
+     * [x] Enhanced NVS partition and partition schemes for UiFlow2
      * [x] Fix M5Stack Tab5 Wifi scan and WebUI in AP mode.
      * [x] New Device: [Lilygo T-Watch-S3] (https://lilygo.cc/products/t-watch-s3?bg_ref=sDI8Bh4HmO)
      * [x] New Device: [Lilygo T-Watch-Ultra] (https://lilygo.cc/products/t-watch-ultra?bg_ref=sDI8Bh4HmO)

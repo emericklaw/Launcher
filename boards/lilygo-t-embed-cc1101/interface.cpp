@@ -157,7 +157,16 @@ void InputHandler(void) {
 
 void powerOff() {
 #ifdef T_EMBED_1101
+    displayRedStripe("Connect to USB to pwr on");
+    delay(3000);
+    for (int i = 3; i > 0; i--) {
+        displayRedStripe("Shutting down in " + String(i));
+        delay(1000);
+    }
     PPM.shutdown();
+    tft->fillScreen(BLACK);
+    displayRedStripe("Unplug USB to power off");
+    while (true) { delay(100); }
 #endif
 }
 

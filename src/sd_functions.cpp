@@ -2,6 +2,7 @@
 #include "display.h"
 #include "esp_log.h"
 #include "mykeyboard.h"
+#include "settings.h"
 #include <algorithm> // for std::sort
 #include <esp_flash.h>
 #include <esp_ota_ops.h>
@@ -427,12 +428,13 @@ RESTART:
 ** Function name: performUpdate
 ** Description:   this function performs the update
 ***************************************************************************************/
-void performUpdate(Stream &updateSource, size_t updateSize, int command) {
+bool performUpdate(Stream &updateSource, size_t updateSize, int command) {
     // command = U_FAT_vfs = 300
     // command = U_FAT_sys = 400
     // command = U_SPIFFS = 100
     // command = U_FLASH = 0
 
+    bool success = false;
     tft->fillRoundRect(6, 6, tftWidth - 12, tftHeight - 12, 5, BGCOLOR);
     progressHandler(0, 500);
 
@@ -456,6 +458,7 @@ void performUpdate(Stream &updateSource, size_t updateSize, int command) {
                 log_i("Update successfully completed. Rebooting.");
                 displayRedStripe("Removing coredump (if any)...");
                 clearCoredump();
+                success = true;
             } else log_i("Update not finished? Something went wrong!");
         } else {
             log_i("Error Occurred. Error #: %s", String(Update.getError()));
@@ -466,6 +469,15 @@ void performUpdate(Stream &updateSource, size_t updateSize, int command) {
         delay(2500);
     }
     vTaskResume(xHandle);
+    return success;
+}
+
+static String installedAppNameFromPath(const String &path) {
+    int slash = path.lastIndexOf('/');
+    String fileName = slash >= 0 ? path.substring(slash + 1) : path;
+    int dot = fileName.lastIndexOf('.');
+    if (dot > 0) fileName = fileName.substring(0, dot);
+    return fileName;
 }
 
 /***************************************************************************************
@@ -522,7 +534,9 @@ void updateFromSD(String path) {
 
     if (firstThreeBytes[0] != 0xAA || firstThreeBytes[1] != 0x50 || firstThreeBytes[2] != 0x01) {
         if (!file.seek(0x0)) goto Exit;
-        performUpdate(file, file.size(), U_FLASH);
+        if (!performUpdate(file, file.size(), U_FLASH)) goto Exit;
+        lastInstalledApp = installedAppNameFromPath(path);
+        saveIntoNVS();
         file.close();
         tft->fillScreen(BGCOLOR);
         FREE_TFT
@@ -613,28 +627,30 @@ void updateFromSD(String path) {
         log_i("FATsize[1]: %d - max: %d at offset: %d", fat_size_vfs, MAX_FAT_vfs, fat_offset_vfs);
 
         if (!file.seek(app_offset)) goto Exit;
-        performUpdate(file, app_size, U_FLASH);
+        if (!performUpdate(file, app_size, U_FLASH)) goto Exit;
 
         prog_handler = 1; // Install SPIFFS update
         if (spiffs) {
             if (!file.seek(spiffs_offset)) goto Exit;
-            performUpdate(file, spiffs_size, U_SPIFFS);
+            if (!performUpdate(file, spiffs_size, U_SPIFFS)) goto Exit;
         }
 
         if (fat) {
             displayRedStripe("Formating FAT");
             if (fat_size_sys > 0) {
                 if (!file.seek(fat_offset_sys)) goto Exit;
-                if (!performFATUpdate(file, fat_size_sys, "sys")) log_i("FAIL updating FAT sys");
+                if (!performFATUpdate(file, fat_size_sys, "sys")) goto Exit;
                 else displayRedStripe("sys FAT complete");
             }
             displayRedStripe("Formating FAT");
             if (fat_size_vfs > 0) {
                 if (!file.seek(fat_offset_vfs)) goto Exit;
-                if (!performFATUpdate(file, fat_size_vfs, "vfs")) log_i("FAIL updating FAT vfs");
+                if (!performFATUpdate(file, fat_size_vfs, "vfs")) goto Exit;
                 else displayRedStripe("vfs FAT complete");
             }
         }
+        lastInstalledApp = installedAppNameFromPath(path);
+        saveIntoNVS();
         displayRedStripe("Complete");
         delay(1000);
         FREE_TFT

@@ -213,34 +213,44 @@ void settings_menu() {
     if (sdcardMounted) {
         if (onlyBins)
             options.push_back({"All Files", [=]() {
-                                   gsetOnlyBins(true, false);
+                                   onlyBins = false;
                                    saveConfigs();
                                }});
         else
             options.push_back({"Only Bins", [=]() {
-                                   gsetOnlyBins(true, true);
+                                   onlyBins = true;
                                    saveConfigs();
                                }});
         if (noDotFiles)
             options.push_back({"Show Dotfiles", [=]() {
-                                   gsetNoDotFiles(true, false);
+                                   noDotFiles = false;
                                    saveConfigs();
                                }});
         else
             options.push_back({"Hide Dotfiles", [=]() {
-                                   gsetNoDotFiles(true, true);
+                                   noDotFiles = true;
                                    saveConfigs();
                                }});
     }
 
+    if (bootToApp)
+        options.push_back({"Boot to Launcher", [=]() {
+                               bootToApp = false;
+                               saveConfigs();
+                           }});
+    else
+        options.push_back({"Boot to App", [=]() {
+                               bootToApp = true;
+                               saveConfigs();
+                           }});
     if (askSpiffs)
         options.push_back({"Avoid Spiffs", [=]() {
-                               gsetAskSpiffs(true, false);
+                               askSpiffs = false;
                                saveConfigs();
                            }});
     else
         options.push_back({"Ask Spiffs", [=]() {
-                               gsetAskSpiffs(true, true);
+                               askSpiffs = true;
                                saveConfigs();
                            }});
 #if !defined(LYLYGO_TDECK_PRO)
@@ -324,63 +334,6 @@ void getBrightness() {
 #else
     _setBrightness(bright);
 #endif
-}
-
-/*********************************************************************
-**  Function: gsetNoDotFiles
-**  get/set noDotFiles global
-**********************************************************************/
-bool gsetNoDotFiles(bool set, bool value) {
-    bool result = false;
-
-    if (noDotFiles > 1) { set = true; }
-
-    if (noDotFiles == 0) result = false;
-    else result = true;
-
-    if (set) {
-        result = value;
-        noDotFiles = value; // update the global variable
-    }
-    return result;
-}
-
-/*********************************************************************
-**  Function: gsetOnlyBins
-**  get onlyBins from EEPROM
-**********************************************************************/
-bool gsetOnlyBins(bool set, bool value) {
-    bool result = false;
-
-    if (onlyBins > 1) { set = true; }
-
-    if (onlyBins == 0) result = false;
-    else result = true;
-
-    if (set) {
-        result = value;
-        onlyBins = value; // update the global variable
-    }
-    return result;
-}
-
-/*********************************************************************
-**  Function: gsetAskSpiffs
-**  get onlyBins from EEPROM
-**********************************************************************/
-bool gsetAskSpiffs(bool set, bool value) {
-    bool result = false;
-
-    if (askSpiffs > 1) { set = true; }
-
-    if (askSpiffs == 0) result = false;
-    else result = true;
-
-    if (set) {
-        result = value;
-        askSpiffs = value; // update the global variable
-    }
-    return result;
 }
 
 /*********************************************************************
@@ -574,9 +527,8 @@ bool config_exists() {
         ;
         if (conf) {
             conf.printf(
-                "[{\"%s\":%d,\"dimmerSet\":10,\"onlyBins\":1,\"noDotFiles\":1,\"bright\":100,\"askSpiffs\":1,"
-                "\"wui_usr\":"
-                "\"admin\",\"wui_pwd\":\"launcher\",\"dwn_path\":\"/downloads/"
+                "[{\"%s\":%d,\"dimmerSet\":10,\"onlyBins\":1,\"bootToApp\":1,\"noDotFiles\":1,\"bright\":100,"
+                "\"askSpiffs\":1,\"wui_usr\":\"admin\",\"wui_pwd\":\"launcher\",\"dwn_path\":\"/downloads/"
                 "\",\"FGCOLOR\":2016,\"BGCOLOR\":0,\"ALCOLOR\":63488,\"even\":13029,\"odd\":12485,\",\"dev\":"
                 "0,\"wifi\":[{\"ssid\":\"myNetSSID\",\"pwd\":\"myNetPassword\"}], \"favorite\":[]}]",
                 get_efuse_mac_as_string().c_str(),
@@ -601,6 +553,7 @@ bool saveIntoNVS() {
     err |= nvsHandle->set_item("dimtime", dimmerSet);
     err |= nvsHandle->set_item("bright", bright);
     err |= nvsHandle->set_item("onlyBins", onlyBins);
+    err |= nvsHandle->set_item("bootToApp", bootToApp);
     err |= nvsHandle->set_item("noDotFiles", noDotFiles);
     err |= nvsHandle->set_item("askSpiffs", askSpiffs);
     err |= nvsHandle->set_item("rotation", rotation);
@@ -613,6 +566,7 @@ bool saveIntoNVS() {
     err |= nvsHandle->set_string("wui_usr", wui_usr.c_str());
     err |= nvsHandle->set_string("wui_pwd", wui_pwd.c_str());
     err |= nvsHandle->set_string("dwn_path", dwn_path.c_str());
+    err |= nvsHandle->set_string("last_app", lastInstalledApp.c_str());
 #if defined(HEADLESS)
     // SD Pins
     err |= nvsHandle->set_item("miso", _miso);
@@ -696,6 +650,7 @@ void defaultValues() {
     dimmerSet = 20;
     bright = 100;
     onlyBins = true;
+    bootToApp = true;
     noDotFiles = true;
     askSpiffs = true;
 #if defined(E_PAPER_DISPLAY)
@@ -741,6 +696,7 @@ bool getFromNVS() {
     err = nvsHandle->get_item("dimtime", dimmerSet);
     err |= nvsHandle->get_item("bright", bright);
     err |= nvsHandle->get_item("onlyBins", onlyBins);
+    err |= nvsHandle->get_item("bootToApp", bootToApp);
     err |= nvsHandle->get_item("noDotFiles", noDotFiles);
     err |= nvsHandle->get_item("askSpiffs", askSpiffs);
     err |= nvsHandle->get_item("rotation", rotation);
@@ -764,6 +720,11 @@ bool getFromNVS() {
     wui_pwd = String(buffer);
     err |= nvsHandle->get_string("dwn_path", buffer, sizeof(buffer));
     dwn_path = String(buffer);
+    char appBuffer[128] = {0};
+    esp_err_t lastAppErr = nvsHandle->get_string("last_app", appBuffer, sizeof(appBuffer));
+    if (lastAppErr == ESP_OK) lastInstalledApp = String(appBuffer);
+    else if (lastAppErr == ESP_ERR_NVS_NOT_FOUND) lastInstalledApp = "";
+    else err |= lastAppErr;
     if (err != ESP_OK) {
         log_i("Failed to retrieve settings from NVS: %d\nUsing Default values", err);
         defaultValues();
@@ -873,19 +834,25 @@ void getConfigs() {
             int count = 0;
             JsonObject setting = settings[0];
             if (setting["onlyBins"].is<bool>()) {
-                onlyBins = gsetOnlyBins(setting["onlyBins"].as<bool>());
+                onlyBins = setting["onlyBins"].as<bool>();
+            } else {
+                count++;
+                log_i("Fail");
+            }
+            if (setting["bootToApp"].is<bool>()) {
+                bootToApp = setting["bootToApp"].as<bool>();
             } else {
                 count++;
                 log_i("Fail");
             }
             if (setting["noDotFiles"].is<bool>()) {
-                noDotFiles = gsetNoDotFiles(setting["noDotFiles"].as<bool>());
+                noDotFiles = setting["noDotFiles"].as<bool>();
             } else {
                 count++;
                 log_i("Fail");
             }
             if (setting["askSpiffs"].is<bool>()) {
-                askSpiffs = gsetAskSpiffs(setting["askSpiffs"].as<bool>());
+                askSpiffs = setting["askSpiffs"].as<bool>();
             } else {
                 count++;
                 log_i("Fail");
@@ -1051,6 +1018,7 @@ void saveConfigs() {
         }
         // Update JSON document with current configuration
         setting["onlyBins"] = onlyBins;
+        setting["bootToApp"] = bootToApp;
         setting["noDotFiles"] = noDotFiles;
         setting["askSpiffs"] = askSpiffs;
         setting["bright"] = bright;
