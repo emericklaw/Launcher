@@ -18,9 +18,9 @@ coredump, data, coredump,0x7F0000, 0x10000,
 # Name,   Type, SubType, Offset,   Size, Flags
 #nvs,      data, nvs,     0x9000,   0x6000,
 #app0,     app,  test,    0x10000,  0x160000,
-#app1,     app,  ota_0,   0x170000, 0x4E0000,
-#sys,      data, fat,     0x650000, 0x100000,
-#vfs,      data, fat,     0x750000, 0xB0000,
+#app1,     app,  ota_0,   0x170000, 0x520000,
+#sys,      data, fat,     0x690000, 0x100000,
+#vfs,      data, fat,     0x790000, 0x70000,
 #
 # Game Station, , , , ,
 # Name,   Type, SubType, Offset,   Size, Flags
