@@ -19,6 +19,7 @@ BOOT_OFFSETS = {
     "esp32": 0x1000,   # ESP32
     "esp32s3": 0x0000,   # ESP32-S3
     "esp32c5": 0x2000,   # ESP32-C5
+    "esp32c6": 0x0000,   # ESP32-C6
     "esp32p4": 0x2000,   # ESP32-P4
 }
 boot_offset = BOOT_OFFSETS.get(mcu, 0x0000)   # safe fallback
@@ -36,8 +37,6 @@ boot_bin = build_dir / "bootloader.bin"
 part_bin = build_dir / "partitions.bin"
 app_bin  = build_dir / "firmware.bin"
 
-if mcu=="esp32p4":
-    APP_OFFSET = 0x20000
 
 out_bin = proj_dir / f"Launcher-{pioenv}.bin"
 
@@ -114,16 +113,10 @@ def _merge_bins_callback(target, source, env):
         "--output", str(out_bin),
     ]
 
-    if mcu=="esp32p4":
-        cmd_parts.extend([
-            hex(0x0), str(proj_dir / "support_files/esp32p4.bin"),
-            hex(PART_TABLE_OFFSET), str(part_bin),
-        ])
-    else:
-        cmd_parts.extend([
-            hex(boot_offset), str(boot_bin),
-            hex(PART_TABLE_OFFSET), str(part_bin),
-        ])
+    cmd_parts.extend([
+        hex(boot_offset), str(boot_bin),
+        hex(PART_TABLE_OFFSET), str(part_bin),
+    ])
 
     cmd_parts.extend([
         hex(APP_OFFSET), str(app_bin),
