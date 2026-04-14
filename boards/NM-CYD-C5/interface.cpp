@@ -135,4 +135,4 @@ void powerOff() { esp_deep_sleep_start(); }
 ** location: mykeyboard.cpp
 ** Btn logic to tornoff the device (name is odd btw)
 **********************************************************************/
-void checkReboot() {}
+void checkReboot() { /* No dedicated reboot button on NM-CYD-C5 */ }
