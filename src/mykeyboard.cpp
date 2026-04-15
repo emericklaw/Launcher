@@ -846,8 +846,10 @@ String keyboard(String current_text, int max_size, String textbox_title) {
 
 /* Turns off device */
 void powerOff() {
+#if defined(SOC_PM_SUPPORT_EXT0_WAKEUP)
     esp_sleep_enable_ext0_wakeup(GPIO_NUM_0, LOW);
     vTaskDelay(pdMS_TO_TICKS(200));
+#endif
     esp_deep_sleep_start();
 }
 
