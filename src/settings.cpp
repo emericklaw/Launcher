@@ -283,9 +283,7 @@ void settings_menu() {
     if (dev_mode) options.push_back({"Boot Animation", [=]() { initDisplayLoop(); }});
     if (dev_mode) options.push_back({"Deactivate Dev", [=]() { dev_mode = false; }});
     options.push_back({"Restart", [=]() { FREE_TFT reboot(); }});
-#if defined(STICK_C_PLUS2) || defined(T_EMBED) || defined(STICK_C_PLUS) || defined(T_LORA_PAGER) ||          \
-    defined(LYLYGO_T5S3_PRO) || defined(ARDUINO_M5STACK_PAPERS3) || defined(ARDUINO_M5STACK_PAPER) ||        \
-    defined(LYLYGO_TDECK_PRO)
+#if !defined(CARDPUTER)
     options.push_back({"Turn-off", [=]() { powerOff(); }});
 #endif
 
@@ -311,7 +309,7 @@ void setBrightness(int brightval, bool save) {
     _setBrightness(brightval);
 #endif
 
-    if (save) { saveIntoNVS(); }
+    if (save) { bright = brightval; }
 }
 
 /*********************************************************************
@@ -576,13 +574,13 @@ bool saveIntoNVS() {
     err |= nvsHandle->set_item("cs", _cs);
 #endif
     if (err != ESP_OK) {
-        log_i("Failed to store settings in NVS: %d", err);
+        Serial.printf("Failed to store settings in NVS: %d", err);
     } else {
-        log_i("Settings stored in NVS successfully");
+        Serial.printf("Settings stored in NVS successfully");
     }
 
     nvsHandle->commit();
-    if (!saveWifiIntoNVS()) { log_i("saveIntoNVS: failed to store WiFi list"); }
+    if (!saveWifiIntoNVS()) { Serial.printf("saveIntoNVS: failed to store WiFi list"); }
     return true;
 }
 

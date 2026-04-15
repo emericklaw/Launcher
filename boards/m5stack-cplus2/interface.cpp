@@ -77,10 +77,18 @@ void powerOff() {
 ** Btn logic to tornoff the device (name is odd btw)
 **********************************************************************/
 void checkReboot() {
+    static unsigned long time_count = 0;
+    static bool armed = false;
     int countDown;
     /* Long press power off */
     if (digitalRead(UP_BTN) == LOW) {
-        uint32_t time_count = millis();
+        if (armed == false) {
+            time_count = millis();
+            armed = true;
+            return;
+        }
+        if (millis() - time_count < 500) return;
+
         while (digitalRead(UP_BTN) == LOW) {
             // Display poweroff bar only if holding button
             if (millis() - time_count > 500) {
@@ -92,9 +100,8 @@ void checkReboot() {
                 delay(10);
             }
         }
-
         // Clear text after releasing the button
-        delay(30);
         tft->fillRect(60, 12, tftWidth - 60, 8, BGCOLOR);
     }
+    armed = false;
 }

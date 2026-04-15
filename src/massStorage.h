@@ -1,10 +1,10 @@
-#ifdef SOC_USB_OTG_SUPPORTED
+
 
 #ifndef __MASS_STORAGE_H__
 #define __MASS_STORAGE_H__
 
 #include <globals.h>
-
+#ifdef SOC_USB_OTG_SUPPORTED
 // All credits to @geo_tp for his incredible POC https://github.com/geo-tp/Esp32-USB-Stick
 // Many thanks to @R3cK for bringing it to Bruce, and allowing me to bring it to Launcher
 
@@ -44,5 +44,5 @@ bool usbStartStopCallback(uint8_t power_condition, bool start, bool load_eject);
 
 void drawUSBStickIcon(bool plugged);
 
-#endif // MASS_STORAGE_H
 #endif // SOC_USB_OTG_SUPPORTED
+#endif // MASS_STORAGE_H

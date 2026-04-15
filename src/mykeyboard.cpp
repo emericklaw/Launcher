@@ -495,6 +495,10 @@ String generalKeyboard(
 #if defined(E_PAPER_DISPLAY) && defined(USE_M5GFX)
             M5.Display.setEpdMode(epd_mode_t::epd_fast);
 #endif
+#ifdef HAS_3_BUTTONS
+            vTaskDelay(pdMS_TO_TICKS(200));
+            resetGlobals();
+#endif
         }
 
         // Cursor Handler
@@ -841,7 +845,11 @@ String keyboard(String current_text, int max_size, String textbox_title) {
 // }
 
 /* Turns off device */
-void powerOff() {}
+void powerOff() {
+    esp_sleep_enable_ext0_wakeup(GPIO_NUM_0, LOW);
+    vTaskDelay(pdMS_TO_TICKS(200));
+    esp_deep_sleep_start();
+}
 
 /* reboot device */
 void __attribute__((weak)) reboot() { ESP.restart(); }

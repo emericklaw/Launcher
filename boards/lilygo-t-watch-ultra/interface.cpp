@@ -150,7 +150,23 @@ void InputHandler(void) {
 ** location: mykeyboard.cpp
 ** Turns off the device (or try to)
 **********************************************************************/
-void powerOff() {}
+void powerOff() {
+    const uint8_t expands[] = {
+        EXPANDS_DISP_EN,
+        EXPANDS_DRV_EN,
+        EXPANDS_TOUCH_RST,
+        EXPANDS_SD_DET,
+    };
+    for (auto pin : expands) {
+        io.digitalWrite(pin, LOW);
+        delay(1);
+    }
+    PPM.shutdown();
+
+    esp_sleep_enable_ext0_wakeup(GPIO_NUM_0, LOW);
+    vTaskDelay(pdMS_TO_TICKS(200));
+    esp_deep_sleep_start();
+}
 
 /*********************************************************************
 ** Function: checkReboot

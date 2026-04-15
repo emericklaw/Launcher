@@ -201,7 +201,13 @@ void InputHandler(void) {
 ** location: mykeyboard.cpp
 ** Turns off the device (or try to)
 **********************************************************************/
-void powerOff() {}
+void powerOff() {
+    axp192.disableALDO2(); //! TFT BACKLIGHT   VDD
+    axp192.disableALDO3(); //! Screen touch VDD
+    axp192.disableALDO4(); //! Radio VDD
+    axp192.disableBLDO2(); //! drv2605 enable
+    axp192.shutdown();
+}
 
 /*********************************************************************
 ** Function: checkReboot

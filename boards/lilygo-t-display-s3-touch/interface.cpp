@@ -229,7 +229,7 @@ void InputHandler(void) {
 ** location: mykeyboard.cpp
 ** Turns off the device (or try to)
 **********************************************************************/
-void powerOff() {}
+// void powerOff() {}
 
 /*********************************************************************
 ** Function: checkReboot

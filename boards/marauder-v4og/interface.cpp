@@ -147,7 +147,10 @@ void InputHandler(void) {
 ** location: mykeyboard.cpp
 ** Turns off the device (or try to)
 **********************************************************************/
-void powerOff() {}
+void powerOff() {
+    displayRedStripe("Not Available");
+    delay(2000);
+}
 
 /*********************************************************************
 ** Function: checkReboot

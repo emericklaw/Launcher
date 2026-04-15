@@ -38,7 +38,7 @@ void InputHandler(void) {
         auto t = M5.Touch.getDetail();
         if (t.isPressed() || t.isHolding()) {
             tm = millis();
-            
+
             if (!wakeUpScreen()) AnyKeyPress = true;
             else return;
 
@@ -56,7 +56,7 @@ void InputHandler(void) {
 ** location: mykeyboard.cpp
 ** Turns off the device (or try to)
 **********************************************************************/
-void powerOff() {}
+void powerOff() { M5.Power.powerOff(); }
 
 /*********************************************************************
 ** Function: checkReboot

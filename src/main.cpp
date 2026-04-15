@@ -468,8 +468,7 @@ void loop() {
         menuItems.push_back({"APP", lastInstalledApp, [=]() { reboot(); }});
     }
 
-#if defined(T_EMBED) || defined(STICK_C_PLUS) || defined(T_LORA_PAGER) || defined(LYLYGO_T5S3_PRO) ||        \
-    defined(ARDUINO_M5STACK_PAPERS3) || defined(ARDUINO_M5STACK_PAPER) || defined(LYLYGO_TDECK_PRO)
+#if !defined(CARDPUTER)
     menuItems.push_back(
         // Add power off option for devices that are not easy to turn off
         // on e-paper, it keeps the Launcher bootscreen printed

@@ -107,10 +107,7 @@ void InputHandler(void) {
 ** location: mykeyboard.cpp
 ** Turns off the device (or try to)
 **********************************************************************/
-void powerOff() {
-    esp_sleep_enable_ext0_wakeup((gpio_num_t)SEL_BTN, BTN_ACT);
-    esp_deep_sleep_start();
-}
+// void powerOff() {}
 
 /*********************************************************************
 ** Function: checkReboot

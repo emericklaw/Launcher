@@ -68,7 +68,7 @@ String keyboard(String mytext, int maxSize, String msg) {}
 ** location: mykeyboard.cpp
 ** Turns off the device (or try to)
 **********************************************************************/
-void powerOff() {}
+// void powerOff() {}
 
 /*********************************************************************
 ** Function: checkReboot

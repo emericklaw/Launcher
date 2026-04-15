@@ -63,10 +63,18 @@ void InputHandler(void) {
 void powerOff() { axp192.PowerOff(); }
 
 void checkReboot() {
+    static unsigned long time_count = 0;
+    static bool armed = false;
     int countDown;
     /* Long press power off */
     if (axp192.GetBtnPress()) {
-        uint32_t time_count = millis();
+        if (armed == false) {
+            time_count = millis();
+            armed = true;
+            return;
+        }
+        if (millis() - time_count < 500) return;
+
         while (axp192.GetBtnPress()) {
             // Display poweroff bar only if holding button
             if (millis() - time_count > 500) {
@@ -79,7 +87,7 @@ void checkReboot() {
             }
         }
         // Clear text after releasing the button
-        delay(30);
         tft->fillRect(60, 12, tftWidth - 60, 8, BGCOLOR);
     }
+    armed = false;
 }
