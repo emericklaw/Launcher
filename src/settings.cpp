@@ -648,7 +648,11 @@ String loadSessionToken() {
 
 void defaultValues() {
     // rotation = ROTATION;
+#ifdef DIMMER_SETUP
+    dimmerSet = DIMMER_SETUP;
+#else
     dimmerSet = 20;
+#endif
     bright = 100;
     onlyBins = true;
     bootToApp = true;

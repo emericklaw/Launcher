@@ -53,6 +53,7 @@
             - { env: "CYD-3248S035C"              }
             - { env: "CYD-8048S043C"              }
             - { env: "CYD-8048W550C"              }
+            - { env: "NM-CYD-C5"                 }
             - { env: "CYD-3248W535C"              }
             - { env: "CYD-4827S043R"              }
             - { env: "lilygo-t-dongle-s3-tft"     }

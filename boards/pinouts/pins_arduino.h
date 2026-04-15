@@ -12,6 +12,8 @@
 #include "lilygo-t-lora-pager.h"
 #elif ARDUINO_M5STACK_CARDPUTER
 #include "m5stack-cardputer.h"
+#elif NM_CYD_C5
+#include "nm-cyd-c5.h"
 #elif CYD
 #include "CYD-2432S028.h"
 #elif ARDUINO_M5STACK_CORE
