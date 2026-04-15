@@ -433,7 +433,7 @@ void loop() {
 #endif
          [=]() { loopOptionsWebUi(); }
         },
-#if defined(ARDUINO_USB_MODE)
+#if defined(SOC_USB_OTG_SUPPORTED)
         {
 #if TFT_HEIGHT < 135
          "USB", "SD->USB",

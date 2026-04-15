@@ -383,4 +383,4 @@ void drawUSBStickIcon(bool plugged) {
     tft->display(false);
 }
 
-#endif // ARDUINO_USB_MODE
+#endif // SOC_USB_OTG_SUPPORTED

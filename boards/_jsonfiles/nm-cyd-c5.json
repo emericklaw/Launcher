@@ -10,31 +10,7 @@
       "'-D ARDUINO_ESP32C5_DEV'",
       "'-D BOARD_HAS_PSRAM'",
       "'-D ARDUINO_USB_MODE=1'",
-      "'-D ARDUINO_USB_CDC_ON_BOOT=1'",
-      "'-D ARDUINO_RUNNING_CORE=1'",
-      "'-D ARDUINO_EVENT_RUNNING_CORE=1'",
-      "'-D NM_CYD_C5'",
-      "'-D DISPLAY_WIDTH=240'",
-      "'-D DISPLAY_HEIGHT=320'",
-      "'-D GPIO_BCKL=25'",
-      "'-D DISPLAY_ST7789_SPI'",
-      "'-D ST7789_SPI_BUS_MISO_IO_NUM=2'",
-      "'-D ST7789_SPI_BUS_MOSI_IO_NUM=7'",
-      "'-D ST7789_SPI_BUS_SCLK_IO_NUM=6'",
-      "'-D ST7789_SPI_CONFIG_CS_GPIO_NUM=23'",
-      "'-D ST7789_SPI_CONFIG_DC_GPIO_NUM=24'",
-      "'-D ST7789_DEV_CONFIG_RESET_GPIO_NUM=-1'",
-      "'-D TOUCH_XPT2046_SPI'",
-      "'-D XPT2046_SPI_BUS_MISO_IO_NUM=2'",
-      "'-D XPT2046_SPI_BUS_MOSI_IO_NUM=7'",
-      "'-D XPT2046_SPI_BUS_SCLK_IO_NUM=6'",
-      "'-D XPT2046_SPI_CONFIG_CS_GPIO_NUM=1'",
-      "'-D XPT2046_TOUCH_CONFIG_INT_GPIO_NUM=-1'",
-      "'-D BOARD_HAS_TF'",
-      "'-D TF_CS=10'",
-      "'-D TF_SPI_SCLK=6'",
-      "'-D TF_SPI_MISO=2'",
-      "'-D TF_SPI_MOSI=7'"
+      "'-D ARDUINO_USB_CDC_ON_BOOT=1'"
     ],
     "f_cpu": "240000000L",
     "f_flash": "80000000L",
@@ -50,7 +26,9 @@
   },
   "connectivity": [
     "wifi",
-    "bluetooth"
+    "bluetooth",
+    "zigbee",
+    "thread"
   ],
   "debug": {
     "openocd_target": "esp32c5.cfg"
@@ -59,10 +37,10 @@
     "arduino",
     "espidf"
   ],
-  "name": "RockBase NM-CYD-C5",
+  "name": "NM-CYD-C5",
   "upload": {
     "flash_size": "16MB",
-    "maximum_ram_size": 524288,
+    "maximum_ram_size": 327680,
     "maximum_size": 16777216,
     "require_upload_port": true,
     "speed": 460800
