@@ -24,7 +24,6 @@ def generate_build_flags(board_config):
     flags = []
 
     # Configurações de hardware
-    flags.append("-DROTATION=3")
     flags.append("-DHAS_BTN=0")
     flags.append("-DSEL_BTN=-1")
     flags.append("-DUP_BTN=-1")
@@ -60,6 +59,7 @@ def generate_build_flags(board_config):
         flags.append("-DTFT_ROW_OFS1=0")
         flags.append("-DTFT_COL_OFS2=0")
         flags.append("-DTFT_ROW_OFS2=0")
+        flags.append("-DROTATION=3")
 
     elif any("DISPLAY_ST7796_SPI" in flag for flag in extra_flags):
         flags.append("-DST7796_DRIVER=1")
@@ -77,6 +77,7 @@ def generate_build_flags(board_config):
         flags.append("-DTFT_ROW_OFS1=0")
         flags.append("-DTFT_COL_OFS2=0")
         flags.append("-DTFT_ROW_OFS2=0")
+        flags.append("-DROTATION=3")
 
     elif any("DISPLAY_ST7789_SPI" in flag for flag in extra_flags):
         flags.append("-DST7789_DRIVER=1")
@@ -94,6 +95,7 @@ def generate_build_flags(board_config):
         flags.append("-DTFT_ROW_OFS1=0")
         flags.append("-DTFT_COL_OFS2=0")
         flags.append("-DTFT_ROW_OFS2=0")
+        flags.append("-DROTATION=3")
 
     elif any("DISPLAY_AXS15231B_QSPI" in flag for flag in extra_flags):
         flags.append("-DAXS15231B_QSPI=1")
@@ -115,6 +117,7 @@ def generate_build_flags(board_config):
         flags.append("-DTFT_ROW_OFS1=0")
         flags.append("-DTFT_COL_OFS2=0")
         flags.append("-DTFT_ROW_OFS2=0")
+        flags.append("-DROTATION=0")
 
 
     elif any("DISPLAY_ST7789_I80" in flag for flag in extra_flags):
@@ -147,18 +150,21 @@ def generate_build_flags(board_config):
         flags.append("-DTFT_IPS=0")
         flags.append("-DTFT_COL_OFS1=0")
         flags.append("-DTFT_ROW_OFS1=0")
+        flags.append("-DROTATION=3")
 
     elif any("DISPLAY_ST7262_PAR" in flag for flag in extra_flags):
         flags.append("-DRGB_PANEL=1")
         flags.append("-DTFT_BL=GPIO_BCKL")
         flags.append("-DTFT_WIDTH=DISPLAY_WIDTH")
         flags.append("-DTFT_HEIGHT=DISPLAY_HEIGHT")
+        flags.append("-DROTATION=3")
 
     elif any("DISPLAY_ST7701_PAR" in flag for flag in extra_flags):
         flags.append("-DRGB_PANEL=1")
         flags.append("-DTFT_BL=GPIO_BCKL")
         flags.append("-DTFT_WIDTH=DISPLAY_WIDTH")
         flags.append("-DTFT_HEIGHT=DISPLAY_HEIGHT")
+        flags.append("-DROTATION=3")
 
 
     else:
@@ -177,6 +183,7 @@ def generate_build_flags(board_config):
         flags.append("-DTFT_ROW_OFS1=0")
         flags.append("-DTFT_COL_OFS2=0")
         flags.append("-DTFT_ROW_OFS2=0")
+        flags.append("-DROTATION=3")
 
     # Verifica suporte ao touch
     if any("TOUCH_XPT2046_SPI" in flag for flag in extra_flags):

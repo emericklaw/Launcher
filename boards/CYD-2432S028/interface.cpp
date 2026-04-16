@@ -187,13 +187,14 @@ void _setBrightness(uint8_t brightval) {
 **********************************************************************/
 void InputHandler(void) {
     static long d_tmp = millis();
+    bool touched = touch.touched(); // read every cycle to skip bad readings
     if (millis() - d_tmp > 250 || LongPress) { // I know R3CK.. I Should NOT nest if statements..
         // but it is needed to not keep SPI bus used without need, it save resources
         TouchPoint t;
 #ifdef DONT_USE_INPUT_TASK
         checkPowerSaveTime();
 #endif
-        if (touch.touched()) {
+        if (touched) {
             auto t = touch.getPointScaled();
             d_tmp = millis();
 #ifdef DONT_USE_INPUT_TASK // need to reset the variables to avoid ghost click

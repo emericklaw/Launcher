@@ -600,10 +600,20 @@ public:
         uint16_t ro1, uint16_t co2, uint16_t ro2
     )
 #ifdef USE_CANVAS
+#ifdef ARDUINO_T_WATCH_S3_ULTRA
         : ARD_TFT_BASE(rotation & 0x1 ? h : w, rotation & 0x1 ? w : h, nullptr, 0, 0, 0),
           _outputDriver(_TFT_DRVF(bus, rst, rotation, ips, w, h, co1, ro1, co2, ro2)) {
         this->_output = &_outputDriver;
     }
+#else
+        // Canvas must be created with the physical (unrotated) dimensions and the
+        // desired rotation so that its internal framebuffer layout matches what
+        // the output driver expects when flush() calls draw16bitRGBBitmap(WIDTH, HEIGHT).
+        : ARD_TFT_BASE(w, h, nullptr, 0, 0, rotation),
+          _outputDriver(_TFT_DRVF(bus, rst, 0, 1, w, h, co1, ro1, co2, ro2)) {
+        this->_output = &_outputDriver;
+    }
+#endif
 #else
         : _TFT_DRVF(bus, rst, rotation, ips, w, h, co1, ro1, co2, ro2) {
     }
@@ -619,8 +629,14 @@ public:
 #ifdef USE_CANVAS
     inline bool begin(int32_t speed = GFX_NOT_DEFINED) { return ARD_TFT_BASE::begin(speed); }
     inline void setRotation(uint8_t rot) {
+#ifdef ARDUINO_T_WATCH_S3_ULTRA
         // ARD_TFT_BASE::setRotation(rot);
         _outputDriver.setRotation(rot);
+#else
+
+        // Canvas handles rotation in the framebuffer; do not rotate the output driver.
+        ARD_TFT_BASE::setRotation(rot);
+#endif
     }
     inline void invertDisplay(bool i) { _outputDriver.invertDisplay(i); }
 #endif
