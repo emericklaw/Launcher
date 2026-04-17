@@ -314,8 +314,10 @@ retry:
                     if (!SDM.exists(folder_name)) SDM.mkdir(folder_name);
                 }
                 File file = SDM.open(folder + fileName + ".bin", FILE_WRITE, true);
+                vTaskDelay(pdMS_TO_TICKS(2));
                 size_t size = http.getSize();
                 displayRedStripe("Downloading FW");
+                vTaskDelay(pdMS_TO_TICKS(2));
                 if (file) {
                     vTaskSuspend(xHandle);
                     int downloaded = 0;
@@ -326,6 +328,7 @@ retry:
 
                     // Ler dados enquanto disponível
                     progressHandler(downloaded, size);
+                    long print_at_5 = 0;
                     while (http.connected() && (len > 0 || len == -1)) {
                         // Ler dados em partes
                         int size_av = stream->available();
@@ -341,8 +344,11 @@ retry:
                             if (len > 0) { len -= c; }
 
                             downloaded += c;
-                            tft->drawPixel(0, 0, 0);
-                            progressHandler(downloaded, size); // Chama a função de progresso
+                            if (print_at_5 >= 5) {
+                                tft->drawPixel(0, 0, 0);
+                                progressHandler(downloaded, size); // Chama a função de progresso
+                                print_at_5 = 0;
+                            } else print_at_5 = print_at_5 + 1;
                         }
                     }
                     file.flush();
