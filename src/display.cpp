@@ -374,6 +374,7 @@ void displayRedStripe(String text, uint16_t fgcolor, uint16_t bgcolor) {
 ** Dependencia: prog_handler =>>    0 - Flash, 1 - SPIFFS
 ***************************************************************************************/
 void progressHandler(size_t progress, size_t total) {
+    vTaskDelay(pdMS_TO_TICKS(1));
 #if defined(E_PAPER_DISPLAY)
     static unsigned long lastUpdate = 0;
 #endif
@@ -420,6 +421,7 @@ void progressHandler(size_t progress, size_t total) {
     M5.Display.setEpdMode(epd_mode_t::epd_fastest);
 #endif
     wakeUpScreen();
+    vTaskDelay(pdMS_TO_TICKS(2));
 }
 
 /***************************************************************************************
