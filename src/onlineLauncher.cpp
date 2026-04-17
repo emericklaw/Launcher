@@ -306,8 +306,13 @@ retry:
             httpResponseCode = http.GET();
             if (httpResponseCode > 0) {
                 setupSdCard();
-                if (!SDM.exists("/downloads")) SDM.mkdir("/downloads");
-
+                if (!folder.endsWith("/")) folder = folder + "/";
+                if (!folder.startsWith("/")) folder = "/" + folder;
+                String folder_name = folder;
+                if (folder_name.length() > 2) {
+                    folder_name.remove(folder_name.length() - 1);
+                    if (!SDM.exists(folder_name)) SDM.mkdir(folder_name);
+                }
                 File file = SDM.open(folder + fileName + ".bin", FILE_WRITE, true);
                 size_t size = http.getSize();
                 displayRedStripe("Downloading FW");

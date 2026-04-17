@@ -87,6 +87,12 @@ Things that needs to be done in next updates
 ## Latest Changelog
 * 2.6.x:
      * [ ] Custom partition builder (no more hardcoded partition lists)
+* 2.6.9:
+     * [X] Port to NM-CYD-C5
+     * [x] Port to 3248W535C
+     * [x] Fix issue where brightness wasnt being saved
+     * [x] Adds "OFF" Option to main screen to turn off (DeepSleep when PMIC is not available) the device.
+     * [x] Fox issue where custom "downloads" folder wasn't being used
 
 * 2.6.8:
      * [x] Increased Gamestation Partitions sizes. https://github.com/bmorcelli/Launcher/issues/299
