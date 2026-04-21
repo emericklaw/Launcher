@@ -179,7 +179,7 @@ void ota_function() {
 ***************************************************************************************/
 String replaceChars(String input) {
     // Define os caracteres que devem ser substituídos
-    const char charsToReplace[] = {'/', '\\', '\"', '\'', '`'};
+    const char charsToReplace[] = {'<', '>', ':', '\"', '/', '\\', '|', '?', '*', '\'', '`'};
     // Define o caractere de substituição (neste exemplo, usamos um espaço)
     const char replacementChar = '_';
 
@@ -187,6 +187,16 @@ String replaceChars(String input) {
     for (size_t i = 0; i < sizeof(charsToReplace); i++) {
         input.replace(String(charsToReplace[i]), String(replacementChar));
     }
+
+    for (size_t i = 0; i < input.length(); i++) {
+        if (input[i] < 32) { input.setCharAt(i, replacementChar); }
+    }
+
+    input.trim();
+    while (input.endsWith(".") || input.endsWith(" ")) { input.remove(input.length() - 1); }
+
+    if (input.isEmpty()) input = "firmware";
+
     return input;
 }
 
@@ -288,12 +298,36 @@ void downloadFirmware(String fid, String file_url, String fileName, String folde
         delay(2500);
         return;
     }
+    log_i("Download folder before checks: '%s'", folder.c_str());
+    if (!folder.endsWith("/")) folder = folder + "/";
+    if (!folder.startsWith("/")) folder = "/" + folder;
+    log_i("Download folder after checks: '%s'", folder.c_str());
+    String folder_name = folder.substring(0, folder.length() - 1);
+    if (folder_name.length() > 2) {
+        if (!SDM.exists(folder_name)) {
+            if (!SDM.mkdir(folder_name)) {
+                log_i("Download: Couldn't create folder '%s'\n", folder_name.c_str());
+                displayRedStripe("Can't create: '" + folder_name + "'");
+                delay(2000);
+                return;
+            }
+        }
+    }
+    String filePath = folder + fileName + ".bin";
 
     tft->fillRect(7, 40, tftWidth - 14, 88, BGCOLOR); // Erase the information below the firmware name
     displayRedStripe("Connecting FW");
     WiFiClientSecure *client = new WiFiClientSecure;
     client->setInsecure();
+    File file;
 retry:
+    file = SDM.open(filePath, FILE_WRITE);
+    if (!file) {
+        log_i("Download: Couldn't create file %s", filePath.c_str());
+        displayRedStripe("Fail creating file.");
+        delay(2000);
+        return;
+    }
     if (client) {
         HTTPClient http;
         int httpResponseCode = -1;
@@ -305,79 +339,75 @@ retry:
             http.useHTTP10(true);
             httpResponseCode = http.GET();
             if (httpResponseCode > 0) {
-                if (!folder.endsWith("/")) folder = folder + "/";
-                if (!folder.startsWith("/")) folder = "/" + folder;
-                String folder_name = folder;
-                if (folder_name.length() > 2) {
-                    folder_name.remove(folder_name.length() - 1);
-                    if (!SDM.exists(folder_name)) SDM.mkdir(folder_name);
-                }
-                File file = SDM.open(folder + fileName + ".bin", FILE_WRITE, true);
                 vTaskDelay(pdMS_TO_TICKS(2));
                 size_t size = http.getSize();
                 displayRedStripe("Downloading FW");
-                if (file) {
-                    vTaskSuspend(xHandle);
-                    int downloaded = 0;
-                    WiFiClient *stream = http.getStreamPtr();
-                    int len = size;
+                vTaskSuspend(xHandle);
+                size_t downloaded = 0;
+                WiFiClient *stream = http.getStreamPtr();
+                int len = size;
 
-                    prog_handler = 2; // Download handler
+                prog_handler = 2; // Download handler
 
-                    // Ler dados enquanto disponível
-                    progressHandler(downloaded, size);
-                    long print_at_5 = 0;
-                    while (http.connected() && (len > 0 || len == -1)) {
-                        // Ler dados em partes
-                        int size_av = stream->available();
-                        if (size_av) {
-                            int c = stream->readBytes(buff, size_av < bufSize ? size_av : bufSize);
-                            if (c <= 0) continue;
-                            size_t wrote = file.write(buff, c);
-                            if (wrote != static_cast<size_t>(c)) {
-                                log_i("Download> write failed after %d bytes", downloaded);
-                                break;
-                            }
-
-                            if (len > 0) { len -= c; }
-
-                            downloaded += c;
-                            if (print_at_5 >= 5) {
-                                tft->drawPixel(0, 0, 0);
-                                progressHandler(downloaded, size); // Chama a função de progresso
-                                vTaskDelay(pdMS_TO_TICKS(5));
-                                print_at_5 = 0;
-                            } else print_at_5 = print_at_5 + 1;
+                // Ler dados enquanto disponível
+                progressHandler(downloaded, size);
+                long print_at_5 = 0;
+                while (http.connected() && (len > 0 || len == -1)) {
+                    // Ler dados em partes
+                    vTaskDelay(pdMS_TO_TICKS(1));
+                    int size_av = stream->available();
+                    if (size_av) {
+                        size_t c = stream->readBytes(buff, size_av < bufSize ? size_av : bufSize);
+                        vTaskDelay(pdMS_TO_TICKS(2)); // time to C5 move info from one task to another
+                        if (c <= 0) continue;
+                        size_t wrote = file.write(buff, c);
+                        if (wrote != c) {
+                            log_i(
+                                "Download> write failed after %lu bytes (wrote %lu out of %lu)",
+                                downloaded,
+                                wrote,
+                                c
+                            );
+                            break;
                         }
+
+                        if (len > 0) { len -= c; }
+
+                        downloaded += c;
+                        if (print_at_5 >= 10) {
+                            tft->drawPixel(0, 0, 0);
+                            progressHandler(downloaded, size); // Chama a função de progresso
+                            print_at_5 = 0;
+                        } else print_at_5 = print_at_5 + 1;
                     }
-                    file.flush();
-                    file.close();
-                    vTaskResume(xHandle);
-                } else {
-                    Serial.printf("Download> Couldn't create file %s\n", String(folder + fileName + ".bin"));
-                    displayRedStripe("Fail creating file.");
                 }
+                file.flush();
+                file.close();
+                vTaskResume(xHandle);
+
                 // Checks if the file was preatically not downloaded and try one more time (size <=
                 // bufSize)
                 vTaskDelay(pdTICKS_TO_MS(50));
-                file = SDM.open(folder + fileName + ".bin");
-                if (file.size() <= bufSize & tries < 1) {
+                file = SDM.open(filePath, FILE_READ);
+                size_t sdSize = file ? file.size() : 0;
+                if (file) file.close();
+                if (sdSize <= bufSize && tries < 1) {
                     tries++;
+                    SDM.remove(filePath);
                     http.end();
                     goto retry;
                 }
                 // Checks if the file was completely downloaded
-                Serial.printf("File size in get() = %d\nFile size in SD    = %d\n", size, file.size());
-                if (file.size() != size) {
-                    SDM.remove(file.path());
+                Serial.printf("File size in get() = %d\nFile size in SD    = %d\n", size, sdSize);
+                if (sdSize != size) {
+                    SDM.remove(filePath);
                     displayRedStripe("Download FAILED");
                     while (!check(SelPress)) yield();
                 } else {
-                    Serial.printf("File successfully downloaded.\n");
+                    Serial.printf("File successfully downloaded..\n");
                     displayRedStripe(" Downloaded ");
                     while (!check(SelPress)) yield();
                 }
-                file.close();
                 break;
             } else {
                 http.end();

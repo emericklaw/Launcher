@@ -25,7 +25,12 @@ CYD28_TouchR touch(CYD28_DISPLAY_HOR_RES_MAX, CYD28_DISPLAY_VER_RES_MAX);
 ** Description:   initial setup for the device
 ***************************************************************************************/
 void _setup_gpio() {
+    pinMode(TFT_CS, OUTPUT);
+    digitalWrite(TFT_CS, HIGH);
+    pinMode(SDCARD_CS, OUTPUT);
+    digitalWrite(SDCARD_CS, HIGH);
     pinMode(CYD28_TouchR_CS, OUTPUT); // Touch CS pin (XPT2046)
+    digitalWrite(CYD28_TouchR_CS, HIGH);
 }
 
 /***************************************************************************************
