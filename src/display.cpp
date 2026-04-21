@@ -808,6 +808,9 @@ int loopOptions(std::vector<Option> &options, bool bright, uint16_t al, uint16_t
                 }
             }
             if (bright) { setBrightness(100 * (numOpt - index) / numOpt, false); }
+#if defined(HAS_TOUCH)
+            TouchFooter();
+#endif
             redraw = false;
         }
         if (index >= 0 && index < static_cast<int>(options.size())) {

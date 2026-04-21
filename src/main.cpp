@@ -331,7 +331,7 @@ void setup() {
     // Gets the config.conf from SD Card and fill out the settings JSON
     getConfigs();
 #if defined(HAS_TOUCH)
-    TouchFooter2();
+    TouchFooter();
 #endif
 
     // This task keeps running all the time, will never stop

@@ -8,6 +8,28 @@ void touchHeatMap(struct TouchPoint t) {
     int third_x = tftWidth / 3;
     int third_y = tftHeight / 3;
 
+#if 1 // defined(DONT_USE_INPUT_TASK)
+    if (t.x > third_x * 0 && t.x < third_x * 1 && t.y > tftHeight - 30) PrevPress = true;
+    if (t.x > third_x * 1 && t.x < third_x * 2 && t.y > tftHeight - 30) SelPress = true;
+    if (t.x > third_x * 2 && t.x < third_x * 3 && t.y > tftHeight - 30) NextPress = true;
+    if (t.x > third_x * 0 && t.x < third_x * 1 && t.y < 50) EscPress = true;
+
+    /*
+                        Touch area Map
+                ________________________________ 0
+                |_Esc_|_______________________|
+                |_____________________________|
+                |_____________________________|
+                |_____________________________|
+                |_____________________________|
+                |_____________________________|
+                |__Prev___|___Sel___|__Next___| 30 pixel touch area where the touchFooter is drawn
+                0         L third_x |         |
+                                    Lthird_x*2|
+                                              Lthird_x*3
+    */
+
+#else
     if (t.x > third_x * 0 && t.x < third_x * 1 && t.y > third_y) PrevPress = true;
     if (t.x > third_x * 1 && t.x < third_x * 2 && ((t.y > third_y && t.y < third_y * 2) || t.y > tftHeight))
         SelPress = true;
@@ -29,4 +51,5 @@ void touchHeatMap(struct TouchPoint t) {
                                     Lthird_x*2|
                                               Lthird_x*3
     */
+#endif
 }
