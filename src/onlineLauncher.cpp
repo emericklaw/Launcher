@@ -276,10 +276,10 @@ JsonDocument getVersionInfo(String fid) {
 ** Function name: downloadFirmware
 ** Description:   Downloads the firmware and save into the SDCard
 ***************************************************************************************/
-void downloadFirmware(String fid, String file, String fileName, String folder) { // Adicionar "fid"
-    if (!file.startsWith("https://")) file = M5_SERVER_PATH + file;
-    String fileAddr = "https://api.launcherhub.net/download?fid=" + fid + "&file=" + file;
-    if (fid == "") fileAddr = file;
+void downloadFirmware(String fid, String file_url, String fileName, String folder) { // Adicionar "fid"
+    if (!file_url.startsWith("https://")) file_url = M5_SERVER_PATH + file_url;
+    String fileAddr = "https://api.launcherhub.net/download?fid=" + fid + "&file=" + file_url;
+    if (fid == "") fileAddr = file_url;
     int tries = 0;
     fileName = replaceChars(fileName);
     prog_handler = 2;
@@ -305,7 +305,6 @@ retry:
             http.useHTTP10(true);
             httpResponseCode = http.GET();
             if (httpResponseCode > 0) {
-                setupSdCard();
                 if (!folder.endsWith("/")) folder = folder + "/";
                 if (!folder.startsWith("/")) folder = "/" + folder;
                 String folder_name = folder;
@@ -317,7 +316,6 @@ retry:
                 vTaskDelay(pdMS_TO_TICKS(2));
                 size_t size = http.getSize();
                 displayRedStripe("Downloading FW");
-                vTaskDelay(pdMS_TO_TICKS(2));
                 if (file) {
                     vTaskSuspend(xHandle);
                     int downloaded = 0;
@@ -347,6 +345,7 @@ retry:
                             if (print_at_5 >= 5) {
                                 tft->drawPixel(0, 0, 0);
                                 progressHandler(downloaded, size); // Chama a função de progresso
+                                vTaskDelay(pdMS_TO_TICKS(5));
                                 print_at_5 = 0;
                             } else print_at_5 = print_at_5 + 1;
                         }

@@ -366,6 +366,7 @@ void displayRedStripe(String text, uint16_t fgcolor, uint16_t bgcolor) {
     tft->setTextSize(_size);
     tft->setTextColor(_color, _bgcolor);
     tft->setCursor(_x, _y);
+    vTaskDelay(pdMS_TO_TICKS(10));
 }
 
 /***************************************************************************************
