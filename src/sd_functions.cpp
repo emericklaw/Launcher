@@ -77,7 +77,7 @@ bool setupSdCard() {
 #if !defined(SDM_SD)                    // fot Lilygo T-Display S3 with lilygo shield
     if (!SD_MMC.begin("/sdcard", true)) // One bit mode
 #elif (TFT_MOSI == SDCARD_MOSI)
-    if (!SDM.begin(_cs)) // https://github.com/Bodmer/TFT_eSPI/discussions/2420
+    if (!SDM.begin(_cs, SPI, 2000000UL)) // https://github.com/Bodmer/TFT_eSPI/discussions/2420
 #elif defined(HEADLESS)
     if (_sck == 0 && _miso == 0 && _mosi == 0 && _cs == 0) {
         Serial.println("SdCard pins not set");
